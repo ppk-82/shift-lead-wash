@@ -6,13 +6,20 @@
 <title>Shift Lead Wash — Austin-Central</title>
 <link rel="preconnect" href="https://fonts.googleapis.com" />
 <link href="https://fonts.googleapis.com/css2?family=Sora:wght@600;700;800&family=Karla:wght@400;600;700&display=swap" rel="stylesheet" />
-<script src="https://unpkg.com/react@18/umd/react.production.min.js"></script>
-<script src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js"></script>
-<script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/react/18.2.0/umd/react.production.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/react-dom/18.2.0/umd/react-dom.production.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/babel-standalone/7.23.5/babel.min.js"></script>
 <style>body{margin:0}</style>
 </head>
 <body>
-<div id="root"></div>
+<div id="root" style="font-family:sans-serif;padding:40px 20px;text-align:center;color:#5A7A93">Loading form&hellip;</div>
+<script>
+window.addEventListener('error', function (e) {
+  var r = document.getElementById('root');
+  if (r) r.innerHTML = '<div style="font-family:monospace;padding:20px;color:#B00020;text-align:left;white-space:pre-wrap;font-size:13px"><b>Form failed to load. Error details:</b>\n\n' +
+    (e.message || 'Unknown error') + '\n' + (e.filename ? 'File: ' + e.filename + ' (line ' + e.lineno + ')' : '') + '</div>';
+}, true);
+</script>
 <script type="text/babel" data-presets="react">
 
 /* ================================================================
