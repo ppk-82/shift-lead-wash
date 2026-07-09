@@ -1,0 +1,501 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+<title>Shift Lead Wash — Austin-Central</title>
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link href="https://fonts.googleapis.com/css2?family=Sora:wght@600;700;800&family=Karla:wght@400;600;700&display=swap" rel="stylesheet" />
+<script src="https://unpkg.com/react@18/umd/react.production.min.js"></script>
+<script src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js"></script>
+<script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
+<style>body{margin:0}</style>
+</head>
+<body>
+<div id="root"></div>
+<script type="text/babel" data-presets="react">
+
+/* ================================================================
+   STEP 1 OF SETUP: paste your Apps Script Web App URL between the
+   quotes below. It looks like:
+   https://script.google.com/macros/s/AKfycb.../exec
+   ================================================================ */
+const SCRIPT_URL = "PASTE_YOUR_WEB_APP_URL_HERE";
+
+// ---------- Option lists (edit freely) ----------
+const LEADS = ["Valerie Parks", "Ken Spivey", "Makala Moore", "Natalia Bueno", "Other"];
+const BARRIERS = ["Price", "Schedule fit", "Wants to think it over", "Child not ready", "Comparing other schools", "Distance / location", "Needs spouse/partner decision", "Other"];
+const FOLLOWUPS = ["Call scheduled", "Email sent", "Text sent", "Left voicemail", "No follow-up needed", "Other"];
+const WD_REASONS = ["Moving away", "Financial", "Schedule conflict", "Switching activities", "Dissatisfied with progress", "Instructor concern", "Medical", "Seasonal break", "Other"];
+const STAFF_STATUS = ["Called out — covered", "Called out — uncovered", "Late", "Left early", "No-show", "Shift swap"];
+const SHOUT_CATS = ["Teaching quality", "Customer service", "Teamwork", "Above & beyond", "Safety", "Sales / conversion"];
+const INCIDENT_TYPES = ["Injury — minor", "Injury — major", "Pool chemistry", "Behavioral", "Customer complaint (escalated)", "Facility / equipment", "Other"];
+
+const { useState, useEffect, useRef } = React;
+const DRAFT_KEY = "slw-draft-v1";
+
+const blankNC = () => ({ barrier: "", context: "", followUp: "" });
+const blankWD = () => ({ reason: "", details: "", gm: "" });
+const blankST = () => ({ who: "", status: "", coveredBy: "" });
+const blankSO = () => ({ who: "", category: "", why: "" });
+
+const todayStr = () => {
+  const d = new Date();
+  return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, "0")}-${String(d.getDate()).padStart(2, "0")}`;
+};
+
+const initialState = () => ({
+  date: todayStr(), lead: "", leadOther: "",
+  scheduled: "", attended: "", converted: "", nonTrial: "",
+  preShift: "", postShift: "",
+  nonConversions: [], withdrawals: [], staffing: [], shoutouts: [],
+  trCerts: "", trShadow: "", trReadiness: "", trUpcoming: "",
+  opsFlow: "", opsRecovery: "", opsBilling: "",
+  hadIncident: false, incType: "", incDesc: "", incAction: "", incGM: "",
+  facOpen: "", facDone: "", prep: "",
+});
+
+const S = {
+  navy: "#0A2A43", blue: "#1487D8", blueDeep: "#0E5FA3",
+  foam: "#EDF5FB", line: "#C9DFF0", ink: "#12324B", sub: "#5A7A93",
+  buoy: "#FFC845", flag: "#E04E39", ok: "#1E9E6A",
+};
+
+function Lane({ n, title, hint, children, badge }) {
+  return (
+    <section style={{ background: "#fff", border: `1px solid ${S.line}`, borderRadius: 14, padding: "18px 16px 16px", marginBottom: 14 }}>
+      <div style={{ display: "flex", alignItems: "center", gap: 10, marginBottom: 4 }}>
+        <div style={{ width: 30, height: 30, borderRadius: 8, flexShrink: 0, background: `linear-gradient(160deg, ${S.blue}, ${S.blueDeep})`, color: "#fff", fontFamily: "'Sora',sans-serif", fontWeight: 700, fontSize: 14, display: "flex", alignItems: "center", justifyContent: "center" }}>{n}</div>
+        <h2 style={{ margin: 0, fontFamily: "'Sora',sans-serif", fontSize: 16, fontWeight: 700, color: S.navy, letterSpacing: "-0.01em", flex: 1 }}>{title}</h2>
+        {badge}
+      </div>
+      {hint && <p style={{ margin: "2px 0 10px 40px", fontSize: 12.5, color: S.sub }}>{hint}</p>}
+      <div style={{ marginTop: hint ? 0 : 10 }}>{children}</div>
+    </section>
+  );
+}
+
+const labelCss = { display: "block", fontSize: 12.5, fontWeight: 600, color: S.ink, marginBottom: 5 };
+const fieldCss = {
+  width: "100%", boxSizing: "border-box", padding: "10px 12px", fontSize: 15,
+  border: `1.5px solid ${S.line}`, borderRadius: 10, background: "#fff", color: S.ink,
+  fontFamily: "'Karla',sans-serif", outline: "none",
+};
+
+function Field({ label, required, children }) {
+  return (
+    <div style={{ marginBottom: 12 }}>
+      <label style={labelCss}>{label}{required && <span style={{ color: S.flag }}> *</span>}</label>
+      {children}
+    </div>
+  );
+}
+
+function TextArea({ value, onChange, placeholder, rows = 2 }) {
+  return <textarea value={value} placeholder={placeholder} rows={rows} onChange={e => onChange(e.target.value)}
+    style={{ ...fieldCss, resize: "vertical", minHeight: 44 }} />;
+}
+
+function Select({ value, onChange, options, placeholder = "Select…" }) {
+  return (
+    <select value={value} onChange={e => onChange(e.target.value)} style={{ ...fieldCss, color: value ? S.ink : S.sub }}>
+      <option value="">{placeholder}</option>
+      {options.map(o => <option key={o} value={o}>{o}</option>)}
+    </select>
+  );
+}
+
+function Num({ value, onChange, placeholder }) {
+  return <input type="number" inputMode="numeric" min="0" value={value} placeholder={placeholder}
+    onChange={e => onChange(e.target.value)} style={{ ...fieldCss, fontVariantNumeric: "tabular-nums" }} />;
+}
+
+function AddBtn({ onClick, children }) {
+  return (
+    <button onClick={onClick} style={{ width: "100%", padding: "11px 12px", fontSize: 14, fontWeight: 700, fontFamily: "'Sora',sans-serif", color: S.blueDeep, background: S.foam, border: `1.5px dashed ${S.blue}55`, borderRadius: 10, cursor: "pointer" }}>+ {children}</button>
+  );
+}
+
+function EntryCard({ title, onRemove, flagged, children }) {
+  return (
+    <div style={{ border: `1.5px solid ${flagged ? S.flag + "88" : S.line}`, background: flagged ? "#FDF1EF" : S.foam + "66", borderRadius: 12, padding: "12px 12px 4px", marginBottom: 10 }}>
+      <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 10 }}>
+        <span style={{ fontFamily: "'Sora',sans-serif", fontSize: 12, fontWeight: 700, color: flagged ? S.flag : S.blueDeep, textTransform: "uppercase", letterSpacing: "0.06em" }}>{title}</span>
+        <button onClick={onRemove} style={{ border: "none", background: "none", color: S.sub, fontSize: 13, cursor: "pointer", padding: 4 }}>Remove</button>
+      </div>
+      {children}
+    </div>
+  );
+}
+
+function YesNo({ value, onChange }) {
+  return (
+    <div style={{ display: "flex", gap: 8 }}>
+      {["Yes", "No"].map(v => (
+        <button key={v} onClick={() => onChange(v)} style={{
+          flex: 1, padding: "9px 0", borderRadius: 10, fontSize: 14, fontWeight: 700, cursor: "pointer", fontFamily: "'Sora',sans-serif",
+          border: `1.5px solid ${value === v ? (v === "Yes" ? S.flag : S.blueDeep) : S.line}`,
+          background: value === v ? (v === "Yes" ? "#FDECE9" : S.foam) : "#fff",
+          color: value === v ? (v === "Yes" ? S.flag : S.blueDeep) : S.sub,
+        }}>{v}</button>
+      ))}
+    </div>
+  );
+}
+
+function buildReport(f) {
+  const lead = f.lead === "Other" ? f.leadOther : f.lead;
+  const L = [];
+  L.push(`SHIFT LEAD WASH — ${f.date}`);
+  L.push(`Shift Lead: ${lead}`);
+  L.push("");
+  L.push(`TRIALS`);
+  L.push(`Scheduled: ${f.scheduled} | Attended: ${f.attended} | Converted: ${f.converted} | Non-trial conversions: ${f.nonTrial || 0}`);
+  const att = +f.attended, conv = +f.converted, sch = +f.scheduled;
+  if (sch > 0) L.push(`Show rate: ${Math.round((att / sch) * 100)}% | Trial conversion: ${att > 0 ? Math.round((conv / att) * 100) : 0}%`);
+  L.push("");
+  L.push(`PRE-SHIFT: ${f.preShift}`);
+  L.push(`POST-SHIFT: ${f.postShift}`);
+  if (f.nonConversions.length) {
+    L.push("", "TRIAL NON-CONVERSIONS");
+    f.nonConversions.forEach((n, i) => L.push(`#${i + 1} Barrier: ${n.barrier} | Context: ${n.context || "—"} | Follow-up: ${n.followUp || "—"}`));
+  }
+  if (f.withdrawals.length) {
+    L.push("", "WITHDRAWALS");
+    f.withdrawals.forEach((w, i) => L.push(`#${i + 1} Reason: ${w.reason} | Details: ${w.details || "—"} | GM escalation: ${w.gm || "—"}`));
+  }
+  if (f.staffing.length) {
+    L.push("", "STAFFING");
+    f.staffing.forEach((s, i) => L.push(`#${i + 1} Out: ${s.who} | Status: ${s.status} | Covered by: ${s.coveredBy || "—"}`));
+  }
+  if (f.shoutouts.length) {
+    L.push("", "SHOUTOUTS");
+    f.shoutouts.forEach((s, i) => L.push(`#${i + 1} ${s.who} — ${s.category}: ${s.why}`));
+  }
+  const tr = [["Certs completed", f.trCerts], ["Shadowing / half-teaching", f.trShadow], ["Readiness observations", f.trReadiness], ["Upcoming training needs", f.trUpcoming]].filter(x => x[1]);
+  if (tr.length) { L.push("", "TRAINING"); tr.forEach(([k, v]) => L.push(`${k}: ${v}`)); }
+  const ops = [["Shift flow", f.opsFlow], ["Customer recovery", f.opsRecovery], ["Billing", f.opsBilling]].filter(x => x[1]);
+  if (ops.length) { L.push("", "OPS"); ops.forEach(([k, v]) => L.push(`${k}: ${v}`)); }
+  if (f.hadIncident) {
+    L.push("", "INCIDENT");
+    L.push(`Type: ${f.incType} | Reported to GM: ${f.incGM || "—"}`);
+    L.push(`Description: ${f.incDesc}`);
+    L.push(`Action taken: ${f.incAction}`);
+  }
+  const fac = [["Open items", f.facOpen], ["Completed this shift", f.facDone]].filter(x => x[1]);
+  if (fac.length) { L.push("", "FACILITY LOG"); fac.forEach(([k, v]) => L.push(`${k}: ${v}`)); }
+  if (f.prep) L.push("", `PREP FOR NEXT DAY: ${f.prep}`);
+  return L.join("\n");
+}
+
+function App() {
+  const [f, setF] = useState(() => {
+    try {
+      const raw = localStorage.getItem(DRAFT_KEY);
+      if (raw) return { ...initialState(), ...JSON.parse(raw) };
+    } catch (e) {}
+    return initialState();
+  });
+  const [copied, setCopied] = useState(false);
+  const [showReport, setShowReport] = useState(false);
+  const [sendState, setSendState] = useState("idle"); // idle | sending | done | error
+  const [sendError, setSendError] = useState("");
+  const saveTimer = useRef(null);
+
+  const set = (k, v) => setF(p => ({ ...p, [k]: v }));
+  const setItem = (list, i, k, v) => setF(p => {
+    const arr = [...p[list]]; arr[i] = { ...arr[i], [k]: v }; return { ...p, [list]: arr };
+  });
+  const addItem = (list, blank) => setF(p => ({ ...p, [list]: [...p[list], blank()] }));
+  const rmItem = (list, i) => setF(p => ({ ...p, [list]: p[list].filter((_, j) => j !== i) }));
+
+  useEffect(() => {
+    clearTimeout(saveTimer.current);
+    saveTimer.current = setTimeout(() => {
+      try { localStorage.setItem(DRAFT_KEY, JSON.stringify(f)); } catch (e) {}
+    }, 600);
+    return () => clearTimeout(saveTimer.current);
+  }, [f]);
+
+  const sch = f.scheduled === "" ? null : +f.scheduled;
+  const att = f.attended === "" ? null : +f.attended;
+  const conv = f.converted === "" ? null : +f.converted;
+  const numErr =
+    att != null && sch != null && att > sch ? "Attended can't exceed scheduled." :
+    conv != null && att != null && conv > att ? "Converted can't exceed attended." : null;
+  const showRate = sch > 0 && att != null ? Math.round((att / sch) * 100) : null;
+  const convRate = att > 0 && conv != null ? Math.round((conv / att) * 100) : null;
+  const missedTrials = att != null && conv != null && !numErr ? att - conv : null;
+  const ncGap = missedTrials != null && missedTrials > f.nonConversions.length ? missedTrials - f.nonConversions.length : 0;
+
+  const leadOk = f.lead && (f.lead !== "Other" || f.leadOther.trim());
+  const missing = [];
+  if (!f.date) missing.push("Shift date");
+  if (!leadOk) missing.push("Shift lead");
+  if (f.scheduled === "") missing.push("Trials scheduled");
+  if (f.attended === "") missing.push("Trials attended");
+  if (f.converted === "") missing.push("Trials converted");
+  if (!f.preShift.trim()) missing.push("Pre-shift notes");
+  if (!f.postShift.trim()) missing.push("Post-shift notes");
+  if (numErr) missing.push("Fix trial numbers");
+  if (f.hadIncident) {
+    if (!f.incType) missing.push("Incident type");
+    if (!f.incDesc.trim()) missing.push("Incident description");
+    if (!f.incAction.trim()) missing.push("Incident action");
+    if (!f.incGM) missing.push("Incident — reported to GM?");
+  }
+  f.nonConversions.forEach((n, i) => { if (!n.barrier) missing.push(`Non-conversion #${i + 1} barrier`); });
+  f.withdrawals.forEach((w, i) => { if (!w.reason) missing.push(`Withdrawal #${i + 1} reason`); if (!w.gm) missing.push(`Withdrawal #${i + 1} GM escalation`); });
+  const ready = missing.length === 0;
+
+  const submit = async () => {
+    if (!ready || sendState === "sending") return;
+    if (SCRIPT_URL.indexOf("PASTE_YOUR") === 0) {
+      setSendState("error");
+      setSendError("Setup incomplete: the Apps Script URL hasn't been added to this file yet.");
+      return;
+    }
+    setSendState("sending"); setSendError("");
+    try {
+      const res = await fetch(SCRIPT_URL, {
+        method: "POST",
+        headers: { "Content-Type": "text/plain;charset=utf-8" },
+        body: JSON.stringify(f),
+        redirect: "follow",
+      });
+      const out = await res.json();
+      if (!out.ok) throw new Error(out.error || "Server rejected the submission");
+      setSendState("done");
+      try { localStorage.removeItem(DRAFT_KEY); } catch (e) {}
+    } catch (err) {
+      setSendState("error");
+      setSendError(String(err.message || err));
+    }
+  };
+
+  const doCopy = async () => {
+    try {
+      await navigator.clipboard.writeText(buildReport(f));
+      setCopied(true); setTimeout(() => setCopied(false), 2000);
+    } catch (e) { setShowReport(true); }
+  };
+
+  const startNew = () => {
+    setF(initialState()); setShowReport(false); setSendState("idle"); setSendError("");
+    try { localStorage.removeItem(DRAFT_KEY); } catch (e) {}
+    window.scrollTo(0, 0);
+  };
+
+  const clearAll = () => {
+    if (!confirm("Clear this shift report and start fresh?")) return;
+    startNew();
+  };
+
+  const chip = (txt, color) => (
+    <span style={{ fontFamily: "'Sora',sans-serif", fontSize: 11.5, fontWeight: 700, color: "#fff", background: color, borderRadius: 999, padding: "3px 9px" }}>{txt}</span>
+  );
+
+  // Success screen
+  if (sendState === "done") {
+    return (
+      <div style={{ minHeight: "100vh", background: S.foam, fontFamily: "'Karla',sans-serif", display: "flex", alignItems: "center", justifyContent: "center", padding: 20 }}>
+        <div style={{ background: "#fff", border: `1px solid ${S.line}`, borderRadius: 16, padding: "36px 28px", maxWidth: 420, textAlign: "center" }}>
+          <div style={{ width: 56, height: 56, borderRadius: "50%", background: S.ok, color: "#fff", fontSize: 28, display: "flex", alignItems: "center", justifyContent: "center", margin: "0 auto 16px" }}>✓</div>
+          <h1 style={{ fontFamily: "'Sora',sans-serif", fontSize: 22, color: S.navy, margin: "0 0 8px" }}>Shift report submitted</h1>
+          <p style={{ color: S.sub, fontSize: 14.5, margin: "0 0 24px" }}>Your report for {f.date} is in the tracker. Nice close-out.</p>
+          <button onClick={startNew} style={{ padding: "13px 28px", borderRadius: 10, border: "none", background: `linear-gradient(150deg, ${S.blue}, ${S.blueDeep})`, color: "#fff", fontFamily: "'Sora',sans-serif", fontWeight: 700, fontSize: 15, cursor: "pointer" }}>Start a new shift</button>
+        </div>
+      </div>
+    );
+  }
+
+  return (
+    <div style={{ minHeight: "100vh", background: S.foam, fontFamily: "'Karla',sans-serif", color: S.ink }}>
+      <header style={{ background: `linear-gradient(150deg, ${S.navy} 0%, ${S.blueDeep} 100%)`, padding: "26px 18px 20px", color: "#fff" }}>
+        <div style={{ maxWidth: 560, margin: "0 auto" }}>
+          <div style={{ fontFamily: "'Sora',sans-serif", fontSize: 11, fontWeight: 700, letterSpacing: "0.14em", textTransform: "uppercase", color: S.buoy, marginBottom: 6 }}>Austin-Central · End of Shift</div>
+          <h1 style={{ margin: 0, fontFamily: "'Sora',sans-serif", fontSize: 26, fontWeight: 800, letterSpacing: "-0.02em" }}>Shift Lead Wash</h1>
+          <p style={{ margin: "6px 0 0", fontSize: 13.5, color: "#BFDDF2" }}>Only sections you use appear in the report. Drafts save automatically on this device.</p>
+          <div style={{ marginTop: 16, height: 6, borderRadius: 3, background: `repeating-linear-gradient(90deg, ${S.buoy} 0 14px, #fff 14px 22px, ${S.flag} 22px 36px, #fff 36px 44px)`, opacity: 0.9 }} />
+        </div>
+      </header>
+
+      <main style={{ maxWidth: 560, margin: "0 auto", padding: "16px 14px 130px" }}>
+        <Lane n="1" title="Shift">
+          <Field label="Shift date" required>
+            <input type="date" value={f.date} onChange={e => set("date", e.target.value)} style={fieldCss} />
+          </Field>
+          <Field label="Shift lead" required>
+            <div style={{ display: "flex", flexWrap: "wrap", gap: 8 }}>
+              {LEADS.map(name => (
+                <button key={name} onClick={() => set("lead", name)} style={{
+                  padding: "8px 14px", borderRadius: 999, fontSize: 14, fontWeight: 600, cursor: "pointer",
+                  border: `1.5px solid ${f.lead === name ? S.blueDeep : S.line}`,
+                  background: f.lead === name ? S.blueDeep : "#fff",
+                  color: f.lead === name ? "#fff" : S.ink,
+                }}>{name}</button>
+              ))}
+            </div>
+            {f.lead === "Other" && (
+              <input value={f.leadOther} placeholder="Name" onChange={e => set("leadOther", e.target.value)} style={{ ...fieldCss, marginTop: 10 }} />
+            )}
+          </Field>
+        </Lane>
+
+        <Lane n="2" title="Trials" badge={convRate != null && !numErr ? chip(`${convRate}% conv`, convRate >= 38 ? S.ok : S.flag) : null}>
+          <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 10 }}>
+            <Field label="Scheduled" required><Num value={f.scheduled} onChange={v => set("scheduled", v)} placeholder="0" /></Field>
+            <Field label="Attended" required><Num value={f.attended} onChange={v => set("attended", v)} placeholder="0" /></Field>
+            <Field label="Converted" required><Num value={f.converted} onChange={v => set("converted", v)} placeholder="0" /></Field>
+            <Field label="Non-trial conversions"><Num value={f.nonTrial} onChange={v => set("nonTrial", v)} placeholder="0" /></Field>
+          </div>
+          {numErr && <p style={{ color: S.flag, fontSize: 13, fontWeight: 600, margin: "0 0 8px" }}>{numErr}</p>}
+          {!numErr && showRate != null && (
+            <p style={{ fontSize: 13, color: S.sub, margin: 0 }}>
+              Show rate <b style={{ color: S.ink }}>{showRate}%</b>{convRate != null && <> · Conversion <b style={{ color: S.ink }}>{convRate}%</b> (location avg ~38%)</>}
+            </p>
+          )}
+        </Lane>
+
+        <Lane n="3" title="Huddles">
+          <Field label="Pre-shift: what was covered?" required>
+            <TextArea value={f.preShift} onChange={v => set("preShift", v)} placeholder="Focus points, goals, callouts…" />
+          </Field>
+          <Field label="Post-shift: what was covered?" required>
+            <TextArea value={f.postShift} onChange={v => set("postShift", v)} placeholder="Wins, misses, handoffs…" />
+          </Field>
+        </Lane>
+
+        <Lane n="4" title="Trial non-conversions"
+          hint={missedTrials != null ? `${missedTrials} trial${missedTrials === 1 ? "" : "s"} attended but didn't convert.` : "Log one entry per family that attended but didn't enroll."}>
+          {ncGap > 0 && (
+            <div style={{ background: "#FFF7E0", border: `1.5px solid ${S.buoy}`, borderRadius: 10, padding: "9px 12px", fontSize: 13, marginBottom: 10 }}>
+              {ncGap} non-conversion{ncGap === 1 ? "" : "s"} not logged yet — add {ncGap === 1 ? "an entry" : "entries"} below.
+            </div>
+          )}
+          {f.nonConversions.map((n, i) => (
+            <EntryCard key={i} title={`Non-conversion #${i + 1}`} onRemove={() => rmItem("nonConversions", i)}>
+              <Field label="Barrier" required><Select value={n.barrier} onChange={v => setItem("nonConversions", i, "barrier", v)} options={BARRIERS} /></Field>
+              <Field label="Context"><TextArea value={n.context} onChange={v => setItem("nonConversions", i, "context", v)} placeholder="What the family said…" /></Field>
+              <Field label="Follow-up"><Select value={n.followUp} onChange={v => setItem("nonConversions", i, "followUp", v)} options={FOLLOWUPS} /></Field>
+            </EntryCard>
+          ))}
+          <AddBtn onClick={() => addItem("nonConversions", blankNC)}>Add non-conversion</AddBtn>
+        </Lane>
+
+        <Lane n="5" title="Withdrawals" hint="One entry per family withdrawing from weekly lessons.">
+          {f.withdrawals.map((w, i) => (
+            <EntryCard key={i} title={`Withdrawal #${i + 1}`} flagged={w.gm === "Yes"} onRemove={() => rmItem("withdrawals", i)}>
+              <Field label="Reason" required><Select value={w.reason} onChange={v => setItem("withdrawals", i, "reason", v)} options={WD_REASONS} /></Field>
+              <Field label="Details"><TextArea value={w.details} onChange={v => setItem("withdrawals", i, "details", v)} placeholder="Save attempt made? Anything recoverable?" /></Field>
+              <Field label="GM escalation required?" required><YesNo value={w.gm} onChange={v => setItem("withdrawals", i, "gm", v)} /></Field>
+            </EntryCard>
+          ))}
+          <AddBtn onClick={() => addItem("withdrawals", blankWD)}>Add withdrawal</AddBtn>
+        </Lane>
+
+        <Lane n="6" title="Staffing" hint="Call-outs, no-shows, swaps, and coverage.">
+          {f.staffing.map((s, i) => (
+            <EntryCard key={i} title={`Staffing #${i + 1}`} flagged={s.status === "Called out — uncovered" || s.status === "No-show"} onRemove={() => rmItem("staffing", i)}>
+              <Field label="Staff out" required><input value={s.who} placeholder="Name" onChange={e => setItem("staffing", i, "who", e.target.value)} style={fieldCss} /></Field>
+              <Field label="Status" required><Select value={s.status} onChange={v => setItem("staffing", i, "status", v)} options={STAFF_STATUS} /></Field>
+              <Field label="Covered by"><input value={s.coveredBy} placeholder="Name (leave blank if uncovered)" onChange={e => setItem("staffing", i, "coveredBy", e.target.value)} style={fieldCss} /></Field>
+            </EntryCard>
+          ))}
+          <AddBtn onClick={() => addItem("staffing", blankST)}>Add staffing entry</AddBtn>
+        </Lane>
+
+        <Lane n="7" title="Shoutouts" hint="Name the specific behavior — it feeds recognition.">
+          {f.shoutouts.map((s, i) => (
+            <EntryCard key={i} title={`Shoutout #${i + 1}`} onRemove={() => rmItem("shoutouts", i)}>
+              <Field label="Teammate" required><input value={s.who} placeholder="Name" onChange={e => setItem("shoutouts", i, "who", e.target.value)} style={fieldCss} /></Field>
+              <Field label="Category"><Select value={s.category} onChange={v => setItem("shoutouts", i, "category", v)} options={SHOUT_CATS} /></Field>
+              <Field label="Why"><TextArea value={s.why} onChange={v => setItem("shoutouts", i, "why", v)} placeholder="The specific thing they did…" /></Field>
+            </EntryCard>
+          ))}
+          <AddBtn onClick={() => addItem("shoutouts", blankSO)}>Add shoutout</AddBtn>
+        </Lane>
+
+        <Lane n="8" title="Training" hint="Leave blank anything that didn't happen today.">
+          <Field label="Certs completed today (who and what)"><TextArea value={f.trCerts} onChange={v => set("trCerts", v)} /></Field>
+          <Field label="Shadowing / half-teaching done today"><TextArea value={f.trShadow} onChange={v => set("trShadow", v)} /></Field>
+          <Field label="Readiness observations (who needs more reps, in what)"><TextArea value={f.trReadiness} onChange={v => set("trReadiness", v)} /></Field>
+          <Field label="Upcoming training needs"><TextArea value={f.trUpcoming} onChange={v => set("trUpcoming", v)} /></Field>
+        </Lane>
+
+        <Lane n="9" title="Ops">
+          <Field label="Shift flow (how did the shift run?)"><TextArea value={f.opsFlow} onChange={v => set("opsFlow", v)} /></Field>
+          <Field label="Customer recovery (saves, complaints handled)"><TextArea value={f.opsRecovery} onChange={v => set("opsRecovery", v)} /></Field>
+          <Field label="Billing (balances, account issues)"><TextArea value={f.opsBilling} onChange={v => set("opsBilling", v)} /></Field>
+        </Lane>
+
+        <Lane n="10" title="Incident" badge={f.hadIncident ? chip("Active", S.flag) : null}>
+          <Field label="Any incident this shift?">
+            <YesNo value={f.hadIncident ? "Yes" : "No"} onChange={v => set("hadIncident", v === "Yes")} />
+          </Field>
+          {f.hadIncident && (
+            <div style={{ borderLeft: `3px solid ${S.flag}`, paddingLeft: 12, marginTop: 4 }}>
+              <Field label="Type" required><Select value={f.incType} onChange={v => set("incType", v)} options={INCIDENT_TYPES} /></Field>
+              <Field label="Description" required><TextArea value={f.incDesc} onChange={v => set("incDesc", v)} rows={3} /></Field>
+              <Field label="Action taken" required><TextArea value={f.incAction} onChange={v => set("incAction", v)} /></Field>
+              <Field label="Reported to GM?" required><YesNo value={f.incGM} onChange={v => set("incGM", v)} /></Field>
+              {f.incGM === "No" && (
+                <p style={{ color: S.flag, fontSize: 13, fontWeight: 700, margin: "0 0 8px" }}>
+                  Incidents should be reported to the GM before closing the shift.
+                </p>
+              )}
+            </div>
+          )}
+        </Lane>
+
+        <Lane n="11" title="Facility & prep">
+          <Field label="Facility log — open items (broken, needed, unresolved)"><TextArea value={f.facOpen} onChange={v => set("facOpen", v)} /></Field>
+          <Field label="Facility log — items completed this shift"><TextArea value={f.facDone} onChange={v => set("facDone", v)} /></Field>
+          <Field label="Prep work completed for the next day"><TextArea value={f.prep} onChange={v => set("prep", v)} /></Field>
+        </Lane>
+
+        {sendState === "error" && (
+          <div style={{ background: "#FDECE9", border: `1.5px solid ${S.flag}`, borderRadius: 12, padding: "12px 14px", fontSize: 13.5, color: S.ink, marginBottom: 14 }}>
+            <b style={{ color: S.flag }}>Submission failed.</b> {sendError} Your entries are still saved on this device — try again, or use "Copy report" as a backup and send it to the GM directly.
+          </div>
+        )}
+
+        {showReport && (
+          <Lane n="✓" title="Shift report">
+            <pre style={{ whiteSpace: "pre-wrap", fontSize: 13, background: S.foam, border: `1px solid ${S.line}`, borderRadius: 10, padding: 12, fontFamily: "ui-monospace, monospace", margin: 0 }}>{buildReport(f)}</pre>
+            <button onClick={doCopy} style={{ marginTop: 10, width: "100%", padding: 11, borderRadius: 10, border: `1.5px solid ${S.blueDeep}`, background: "#fff", color: S.blueDeep, fontWeight: 700, fontFamily: "'Sora',sans-serif", fontSize: 14, cursor: "pointer" }}>{copied ? "Copied ✓" : "Copy report text"}</button>
+          </Lane>
+        )}
+
+        <button onClick={clearAll} style={{ width: "100%", padding: 12, background: "none", border: `1.5px solid ${S.line}`, borderRadius: 10, color: S.sub, fontSize: 14, fontWeight: 600, cursor: "pointer", marginTop: 4 }}>
+          Clear shift & start fresh
+        </button>
+      </main>
+
+      <footer style={{ position: "fixed", bottom: 0, left: 0, right: 0, background: "#fff", borderTop: `1px solid ${S.line}`, padding: "10px 14px calc(10px + env(safe-area-inset-bottom))", boxShadow: "0 -6px 20px rgba(10,42,67,0.08)" }}>
+        <div style={{ maxWidth: 560, margin: "0 auto" }}>
+          <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 8, fontSize: 12, color: S.sub }}>
+            <span>{ready ? "All required fields complete" : `${missing.length} required item${missing.length === 1 ? "" : "s"} left: ${missing.slice(0, 2).join(", ")}${missing.length > 2 ? "…" : ""}`}</span>
+          </div>
+          <div style={{ display: "flex", gap: 8 }}>
+            <button onClick={() => setShowReport(s => !s)} style={{
+              flex: 1, padding: "13px 0", borderRadius: 10, fontSize: 14.5, fontWeight: 700, fontFamily: "'Sora',sans-serif",
+              border: `1.5px solid ${S.blueDeep}`, background: "#fff", color: S.blueDeep, cursor: "pointer",
+            }}>{showReport ? "Hide report" : "Preview"}</button>
+            <button onClick={submit} disabled={!ready || sendState === "sending"} style={{
+              flex: 1.6, padding: "13px 0", borderRadius: 10, fontSize: 14.5, fontWeight: 700, fontFamily: "'Sora',sans-serif",
+              border: "none", cursor: ready && sendState !== "sending" ? "pointer" : "not-allowed",
+              background: ready ? `linear-gradient(150deg, ${S.blue}, ${S.blueDeep})` : S.line,
+              color: "#fff",
+            }}>{sendState === "sending" ? "Submitting…" : "Submit shift report"}</button>
+          </div>
+        </div>
+      </footer>
+    </div>
+  );
+}
+
+ReactDOM.createRoot(document.getElementById("root")).render(<App />);
+</script>
+</body>
+</html>
