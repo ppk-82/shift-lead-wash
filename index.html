@@ -210,8 +210,13 @@ footer{position:fixed;bottom:0;left:0;right:0;background:#fff;border-top:2px sol
 <div id="successScreen"><div class="success-card">
   <div class="success-check">✓</div>
   <h1 style="font-size:22px;margin:0 0 8px;font-weight:900">Wash saved</h1>
-  <p style="color:var(--baby);font-size:14px;margin:0 0 24px;font-weight:700" id="successMsg"></p>
-  <button type="button" onclick="startNew()" class="btn btn-red" style="padding:13px 28px;font-size:14px">Start a New Wash</button>
+  <p style="color:var(--baby);font-size:14px;margin:0 0 18px;font-weight:700" id="successMsg"></p>
+  <div style="display:flex;gap:10px;justify-content:center;flex-wrap:wrap;margin-bottom:8px">
+    <button type="button" id="successCopyBtn" onclick="successCopy()" class="btn" style="background:var(--baby);color:var(--navy);padding:13px 22px;font-size:13px">Copy Wash Text</button>
+    <button type="button" onclick="startNew()" class="btn btn-red" style="padding:13px 22px;font-size:13px">Start a New Wash</button>
+  </div>
+  <p style="color:var(--baby);font-size:12px;margin:0 0 10px;opacity:.85">Copy it now and paste into the leads chat.</p>
+  <textarea id="successText" readonly onfocus="this.select()" style="display:none;min-height:200px;background:var(--ink);color:#fff;border:2px solid var(--blue);font-size:13px;line-height:1.5;border-radius:10px;width:100%;padding:10px 12px;font-family:inherit;box-sizing:border-box"></textarea>
 </div></div>
 
 <script>
@@ -280,6 +285,11 @@ function leadNames(){
 }
 
 // ---------- Dynamic entry lists ----------
+function selRHtml(kind,idx,field,options,val,ph){
+  var h='<select onchange="setEntryR(\''+kind+'\','+idx+',\''+field+'\',this.value)"><option value="">'+esc(ph)+'</option>';
+  for (var i=0;i<options.length;i++) h+='<option value="'+esc(options[i])+'"'+(val===options[i]?' selected':'')+'>'+esc(options[i])+'</option>';
+  return h+'</select>';
+}
 function selHtml(kind,idx,field,options,val,ph){
   var h='<select onchange="setEntry(\''+kind+'\','+idx+',\''+field+'\',this.value)"><option value="">'+esc(ph)+'</option>';
   for (var i=0;i<options.length;i++) h+='<option value="'+esc(options[i])+'"'+(val===options[i]?' selected':'')+'>'+esc(options[i])+'</option>';
@@ -300,14 +310,22 @@ var LIST_DEFS = {
       '<button type="button" class="btn btn-ghost" onclick="rmEntry(\'wd\','+i+')">Remove</button></div>'; } },
   st: { el:"stList", titleEl:"stTitle", titleTxt:"Staffing Notes", cls:"",
     body:function(e,i){
-      var covered = STAFF.concat(["Not Covered"]);
-      return '<div class="grid2">'+selHtml('st',i,'who',STAFF,e.who,"Staff Out...")+selHtml('st',i,'status',STAFF_STATUS,e.status,"Status...")+'</div>'+
-      '<div class="row-line">'+selHtml('st',i,'coveredBy',covered,e.coveredBy,"Covered By...")+
-      '<button type="button" class="btn btn-ghost" onclick="rmEntry(\'st\','+i+')">Remove</button></div>'; } },
+      var staffOpt = STAFF.concat([OTHER]);
+      var covered = STAFF.concat(["Not Covered", OTHER]);
+      var h = '<div class="grid2">'+selRHtml('st',i,'who',staffOpt,e.who,"Staff Out...")+selHtml('st',i,'status',STAFF_STATUS,e.status,"Status...")+'</div>';
+      if (e.who===OTHER) h += '<div style="margin-bottom:8px">'+inpHtml('st',i,'whoOther',e.whoOther,"Staff out — enter name")+'</div>';
+      h += '<div class="row-line">'+selRHtml('st',i,'coveredBy',covered,e.coveredBy,"Covered By...")+
+      '<button type="button" class="btn btn-ghost" onclick="rmEntry(\'st\','+i+')">Remove</button></div>';
+      if (e.coveredBy===OTHER) h += '<div style="margin-top:8px">'+inpHtml('st',i,'coveredByOther',e.coveredByOther,"Covered by — enter name")+'</div>';
+      return h; } },
   so: { el:"soList", titleEl:"soTitle", titleTxt:"Shoutouts", cls:" shout",
-    body:function(e,i){ return '<div class="grid2">'+selHtml('so',i,'who',STAFF,e.who,"Teammate...")+selHtml('so',i,'category',SHOUT_CATS,e.category,"Category...")+'</div>'+
-      '<div class="row-line">'+inpHtml('so',i,'why',e.why,"Why")+
-      '<button type="button" class="btn btn-ghost yellow" onclick="rmEntry(\'so\','+i+')">Remove</button></div>'; } }
+    body:function(e,i){
+      var staffOpt = STAFF.concat([OTHER]);
+      var h = '<div class="grid2">'+selRHtml('so',i,'who',staffOpt,e.who,"Teammate...")+selHtml('so',i,'category',SHOUT_CATS,e.category,"Category...")+'</div>';
+      if (e.who===OTHER) h += '<div style="margin-bottom:8px">'+inpHtml('so',i,'whoOther',e.whoOther,"Teammate — enter name")+'</div>';
+      h += '<div class="row-line">'+inpHtml('so',i,'why',e.why,"Why")+
+      '<button type="button" class="btn btn-ghost yellow" onclick="rmEntry(\'so\','+i+')">Remove</button></div>';
+      return h; } }
 };
 
 function renderList(kind){
@@ -319,6 +337,9 @@ function renderList(kind){
 function addEntry(kind){ lists[kind].push({}); renderList(kind); refresh(); }
 function rmEntry(kind,i){ lists[kind].splice(i,1); renderList(kind); refresh(); }
 function setEntry(kind,i,field,val){ if(lists[kind][i]) lists[kind][i][field]=val; refresh(); }
+function setEntryR(kind,i,field,val){ if(lists[kind][i]) lists[kind][i][field]=val; renderList(kind); refresh(); }
+var OTHER = "Other (write in)";
+function resolveStaff(name, other){ return name===OTHER ? (other||"Other") : (name||""); }
 
 // ---------- Facility log (shared via backend) ----------
 function renderFacility(){
@@ -507,11 +528,14 @@ function buildWashText(f){
   }
   if (f.staffing.length){
     L.push(""); L.push("Staffing & Coverage");
-    f.staffing.forEach(function(row){ L.push("• "+(row.who||"?")+" — "+(row.status||"?")+(row.coveredBy?" • Covered by "+row.coveredBy:"")); });
+    f.staffing.forEach(function(row){
+      var who=resolveStaff(row.who,row.whoOther)||"?";
+      var cov=resolveStaff(row.coveredBy,row.coveredByOther);
+      L.push("• "+who+" — "+(row.status||"?")+(cov?" • Covered by "+cov:"")); });
   }
   if (f.shoutouts.length){
     L.push(""); L.push("Shoutouts");
-    f.shoutouts.forEach(function(row){ L.push("• "+(row.who||"?")+" — "+(row.category||"")+(row.why?": "+row.why:"")); });
+    f.shoutouts.forEach(function(row){ L.push("• "+(resolveStaff(row.who,row.whoOther)||"?")+" — "+(row.category||"")+(row.why?": "+row.why:"")); });
   }
   if (f.trCerts||f.trShadow||f.trReadiness||f.trUpcoming){
     L.push(""); L.push("Training & Development");
@@ -573,6 +597,8 @@ function submitForm(){
   $("errBanner").style.display="none";
   var f=getState();
   f.facilityLog = facility.filter(function(x){ return x.item && x.item.trim(); });
+  f.staffing = f.staffing.map(function(r){ return { who: resolveStaff(r.who,r.whoOther), status: r.status||"", coveredBy: resolveStaff(r.coveredBy,r.coveredByOther) }; });
+  f.shoutouts = f.shoutouts.map(function(r){ return { who: resolveStaff(r.who,r.whoOther), category: r.category||"", why: r.why||"" }; });
   fetch(SCRIPT_URL,{
     method:"POST",
     headers:{ "Content-Type":"text/plain;charset=utf-8" },
@@ -582,6 +608,7 @@ function submitForm(){
     .then(function(out){
       if (!out.ok) throw new Error(out.error||"Server rejected the submission");
       try{ localStorage.removeItem(DRAFT_KEY); }catch(e){}
+      lastWashText = buildWashText(f);
       $("successMsg").textContent="Wash saved for "+fmtDate(f.date)+".";
       $("app").style.display="none";
       $("successScreen").style.display="flex";
@@ -601,6 +628,17 @@ function showError(msg){
   b.scrollIntoView({behavior:"smooth"});
 }
 
+var lastWashText = "";
+function successCopy(){
+  function done(){ $("successCopyBtn").textContent="Copied!"; setTimeout(function(){ $("successCopyBtn").textContent="Copy Wash Text"; },2000); }
+  function manual(){
+    var ta=$("successText");
+    ta.value=lastWashText; ta.style.display="block"; ta.focus();
+  }
+  if (navigator.clipboard && navigator.clipboard.writeText){
+    navigator.clipboard.writeText(lastWashText).then(done).catch(manual);
+  } else { manual(); }
+}
 function clearAll(){
   if (!confirm("Clear this wash and start fresh? (Shared facility items reload from the log.)")) return;
   try{ localStorage.removeItem(DRAFT_KEY); }catch(e){}
