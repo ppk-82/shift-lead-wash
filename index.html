@@ -3,461 +3,555 @@
 <head>
 <meta charset="UTF-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
-<title>Shift Lead Wash — Austin-Central</title>
+<title>The Wash — Big Blue Swim School</title>
 <style>
 :root{
-  --navy:#0A2A43; --blue:#1487D8; --deep:#0E5FA3; --foam:#EDF5FB; --line:#C9DFF0;
-  --ink:#12324B; --sub:#5A7A93; --buoy:#FFC845; --flag:#E04E39; --ok:#1E9E6A;
+  --navy:#1F145D; --blue:#2157D6; --baby:#99E3FA; --red:#F8564B; --pink:#FFD0D3;
+  --yellow:#FFCF34; --mist:#F7FBFE; --ink:#2a1d74; --good:#1E9E5A; --goodbg:#E4F6EC;
+  --warnbg:#FFF6DA; --warnfg:#8A6D00; --badfg:#B3261E;
 }
 *{box-sizing:border-box}
-body{margin:0;background:var(--foam);color:var(--ink);font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Helvetica,Arial,sans-serif;font-size:15px}
-header{background:linear-gradient(150deg,var(--navy),var(--deep));color:#fff;padding:26px 18px 20px}
-.wrap{max-width:560px;margin:0 auto}
-.kicker{font-size:11px;font-weight:700;letter-spacing:.14em;text-transform:uppercase;color:var(--buoy);margin-bottom:6px}
-h1{margin:0;font-size:26px;font-weight:800;letter-spacing:-.02em}
-.sub{margin:6px 0 0;font-size:13.5px;color:#BFDDF2}
-.rope{margin-top:16px;height:6px;border-radius:3px;opacity:.9;background:repeating-linear-gradient(90deg,var(--buoy) 0 14px,#fff 14px 22px,var(--flag) 22px 36px,#fff 36px 44px)}
-main{max-width:560px;margin:0 auto;padding:16px 14px 140px}
-.lane{background:#fff;border:1px solid var(--line);border-radius:14px;padding:18px 16px 16px;margin-bottom:14px}
-.lane-head{display:flex;align-items:center;gap:10px;margin-bottom:10px}
-.lane-num{width:30px;height:30px;border-radius:8px;flex-shrink:0;background:linear-gradient(160deg,var(--blue),var(--deep));color:#fff;font-weight:700;font-size:14px;display:flex;align-items:center;justify-content:center}
-.lane-title{margin:0;font-size:16px;font-weight:700;color:var(--navy);flex:1}
-.hint{margin:-6px 0 10px 40px;font-size:12.5px;color:var(--sub)}
-.badge{font-size:11.5px;font-weight:700;color:#fff;border-radius:999px;padding:3px 9px}
-label{display:block;font-size:12.5px;font-weight:600;margin-bottom:5px}
-.req{color:var(--flag)}
-input,select,textarea{width:100%;padding:10px 12px;font-size:15px;border:1.5px solid var(--line);border-radius:10px;background:#fff;color:var(--ink);font-family:inherit;outline:none}
-textarea{resize:vertical;min-height:44px}
-.fld{margin-bottom:12px}
-.grid2{display:grid;grid-template-columns:1fr 1fr;gap:10px}
-.chips{display:flex;flex-wrap:wrap;gap:8px}
-.chip-btn{padding:8px 14px;border-radius:999px;font-size:14px;font-weight:600;cursor:pointer;border:1.5px solid var(--line);background:#fff;color:var(--ink)}
-.chip-btn.on{border-color:var(--deep);background:var(--deep);color:#fff}
-.yn{display:flex;gap:8px}
-.yn button{flex:1;padding:9px 0;border-radius:10px;font-size:14px;font-weight:700;cursor:pointer;border:1.5px solid var(--line);background:#fff;color:var(--sub)}
-.yn button.yes.on{border-color:var(--flag);background:#FDECE9;color:var(--flag)}
-.yn button.no.on{border-color:var(--deep);background:var(--foam);color:var(--deep)}
-.add-btn{width:100%;padding:11px 12px;font-size:14px;font-weight:700;color:var(--deep);background:var(--foam);border:1.5px dashed rgba(20,135,216,.4);border-radius:10px;cursor:pointer}
-.entry{border:1.5px solid var(--line);background:rgba(237,245,251,.5);border-radius:12px;padding:12px 12px 4px;margin-bottom:10px}
-.entry.flagged{border-color:rgba(224,78,57,.6);background:#FDF1EF}
-.entry-head{display:flex;justify-content:space-between;align-items:center;margin-bottom:10px}
-.entry-title{font-size:12px;font-weight:700;color:var(--deep);text-transform:uppercase;letter-spacing:.06em}
-.entry.flagged .entry-title{color:var(--flag)}
-.rm{border:none;background:none;color:var(--sub);font-size:13px;cursor:pointer;padding:4px}
-.nudge{background:#FFF7E0;border:1.5px solid var(--buoy);border-radius:10px;padding:9px 12px;font-size:13px;margin-bottom:10px}
-.err{color:var(--flag);font-size:13px;font-weight:600;margin:0 0 8px}
-.stats{font-size:13px;color:var(--sub);margin:0}
-.stats b{color:var(--ink)}
-.warn-banner{background:#FDECE9;border:1.5px solid var(--flag);border-radius:12px;padding:12px 14px;font-size:13.5px;margin-bottom:14px;display:none}
-.inc-body{border-left:3px solid var(--flag);padding-left:12px;margin-top:4px;display:none}
-pre{white-space:pre-wrap;font-size:13px;background:var(--foam);border:1px solid var(--line);border-radius:10px;padding:12px;font-family:ui-monospace,Menlo,monospace;margin:0}
-.ghost{width:100%;padding:12px;background:none;border:1.5px solid var(--line);border-radius:10px;color:var(--sub);font-size:14px;font-weight:600;cursor:pointer;margin-top:4px}
-footer{position:fixed;bottom:0;left:0;right:0;background:#fff;border-top:1px solid var(--line);padding:10px 14px calc(10px + env(safe-area-inset-bottom));box-shadow:0 -6px 20px rgba(10,42,67,.08)}
-.foot-status{display:flex;justify-content:space-between;font-size:12px;color:var(--sub);margin-bottom:8px}
+body{margin:0;background:#fff;color:var(--navy);font-family:'Trebuchet MS','Segoe UI',sans-serif;font-size:15px}
+.wrap{max-width:780px;margin:0 auto;padding:24px 16px 150px}
+.brand-card{position:relative;background:var(--navy);border-radius:24px;padding:28px 24px;overflow:hidden;margin-bottom:18px;color:#fff}
+.bubble1{position:absolute;width:70px;height:70px;border-radius:50%;background:var(--baby);opacity:.9;top:-20px;right:60px}
+.bubble2{position:absolute;width:34px;height:34px;border-radius:50%;background:var(--baby);opacity:.9;top:55px;right:150px}
+.logo{font-size:30px;font-weight:900;letter-spacing:-1px}
+.logo span{color:var(--baby)}
+.logo-sub{color:var(--baby);font-weight:700;letter-spacing:2px;font-size:12px;text-transform:uppercase;margin-top:2px}
+.brand-title{font-size:21px;margin:16px 0 0;text-transform:uppercase;letter-spacing:.5px;font-weight:800}
+.section{border:2px solid var(--baby);border-radius:20px;padding:20px 18px;margin-bottom:16px;background:#fff}
+.kicker{font-size:11px;text-transform:uppercase;letter-spacing:2px;color:var(--red);font-weight:800;margin-bottom:4px}
+.sec-title{font-size:19px;color:var(--navy);margin:0 0 14px;font-weight:800}
+label{font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:1px;color:var(--navy);display:block;margin-bottom:6px}
+input,select,textarea{width:100%;padding:10px 12px;border-radius:10px;border:2px solid var(--baby);font-size:14px;color:var(--navy);background:var(--mist);font-family:inherit;outline:none}
+textarea{resize:vertical;min-height:60px}
+.fld{margin-bottom:14px}
+.grid3{display:grid;grid-template-columns:1fr 1fr 1fr;gap:12px}
+.grid2{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:8px}
+.lead-chips{display:flex;flex-wrap:wrap;gap:10px}
+.lead-chip{display:flex;align-items:center;gap:6px;padding:8px 12px;border-radius:10px;border:2px solid var(--baby);background:var(--mist);font-size:13px;font-weight:700;color:var(--navy);cursor:pointer;user-select:none}
+.lead-chip.on{border-color:var(--blue);background:#EAF1FE}
+.lead-chip.off{opacity:.4;cursor:not-allowed}
+.metric-cards{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-top:6px}
+.metric{border-radius:14px;padding:16px;color:#fff}
+.metric.show{background:var(--blue)}
+.metric.conv{background:var(--navy)}
+.metric-top{display:flex;justify-content:space-between;align-items:center}
+.metric-label{font-size:11px;text-transform:uppercase;letter-spacing:1px;font-weight:700;opacity:.85}
+.metric.conv .metric-label{color:var(--yellow);opacity:1}
+.metric-val{font-size:28px;font-weight:900}
+.metric-sub{font-size:11px;opacity:.8}
+.badge{border-radius:999px;padding:3px 12px;font-size:11px;font-weight:800;text-transform:uppercase;letter-spacing:1px}
+.b-good{background:var(--goodbg);color:var(--good)}
+.b-warn{background:var(--warnbg);color:var(--warnfg)}
+.b-bad{background:var(--pink);color:var(--badfg)}
+.b-neutral{background:var(--mist);color:var(--navy)}
+.gate{margin-top:14px;background:var(--pink);border-radius:12px;padding:14px}
+.gate-title{font-size:11px;font-weight:800;text-transform:uppercase;letter-spacing:1px;color:var(--badfg);margin-bottom:6px}
+.gate-sub{font-size:12px;color:var(--navy);margin-bottom:8px}
+.gate textarea{background:#fff}
+.row-card{background:var(--mist);border-radius:12px;padding:12px;margin-bottom:10px}
+.row-card.shout{background:var(--navy);color:#fff}
+.row-card.shout input,.row-card.shout select{background:var(--ink);color:#fff;border-color:var(--blue)}
+.row-line{display:flex;gap:10px;align-items:center}
+.btn{border:none;border-radius:10px;padding:10px 18px;font-weight:800;font-size:12px;text-transform:uppercase;letter-spacing:1px;cursor:pointer;font-family:inherit}
+.btn-red{background:var(--red);color:#fff}
+.btn-blue{background:var(--blue);color:#fff}
+.btn-ghost{background:transparent;color:var(--red);border:1px solid var(--red);padding:6px 12px;font-size:11px}
+.btn-ghost.yellow{color:var(--yellow);border-color:var(--yellow)}
+.err-msg{color:var(--badfg);font-size:13px;font-weight:700;margin:8px 0 0}
+.fac-row{display:flex;gap:10px;align-items:center;margin-bottom:8px}
+.fac-row input[type=checkbox]{width:18px;height:18px;flex-shrink:0}
+.fac-closed{text-decoration:line-through;opacity:.55}
+.fac-note{font-size:12px;color:var(--navy);opacity:.75;margin-bottom:12px}
+.fac-status{font-size:12px;font-weight:700;margin-bottom:10px}
+.save-banner{margin-top:12px;padding:12px;border-radius:10px;font-size:13px;font-weight:600;color:var(--navy)}
+.incident-chk{display:flex;align-items:center;gap:8px;margin-bottom:12px;font-weight:700;font-size:13px;color:var(--navy);text-transform:none;letter-spacing:0}
+.incident-chk input{width:18px;height:18px}
+#incBody{display:none}
+pre{white-space:pre-wrap;font-size:13px;background:var(--ink);color:#fff;border-radius:12px;padding:14px;font-family:ui-monospace,Menlo,monospace;margin:0;line-height:1.5}
+footer{position:fixed;bottom:0;left:0;right:0;background:#fff;border-top:2px solid var(--baby);padding:10px 14px calc(10px + env(safe-area-inset-bottom));box-shadow:0 -6px 20px rgba(31,20,93,.10)}
+.foot-inner{max-width:780px;margin:0 auto}
+.foot-msg{font-size:12px;color:var(--ink);margin-bottom:8px;font-weight:600}
 .foot-btns{display:flex;gap:8px}
-.btn-preview{flex:1;padding:13px 0;border-radius:10px;font-size:14.5px;font-weight:700;border:1.5px solid var(--deep);background:#fff;color:var(--deep);cursor:pointer}
-.btn-submit{flex:1.6;padding:13px 0;border-radius:10px;font-size:14.5px;font-weight:700;border:none;color:#fff;background:linear-gradient(150deg,var(--blue),var(--deep));cursor:pointer}
-.btn-submit:disabled{background:var(--line);cursor:not-allowed}
-#successScreen{display:none;min-height:80vh;align-items:center;justify-content:center;padding:20px}
-.success-card{background:#fff;border:1px solid var(--line);border-radius:16px;padding:36px 28px;max-width:420px;text-align:center;margin:0 auto}
-.success-check{width:56px;height:56px;border-radius:50%;background:var(--ok);color:#fff;font-size:28px;display:flex;align-items:center;justify-content:center;margin:0 auto 16px}
+.btn-preview{flex:1;padding:13px 0;border-radius:10px;font-size:13px;font-weight:800;text-transform:uppercase;letter-spacing:1px;border:2px solid var(--blue);background:#fff;color:var(--blue);cursor:pointer;font-family:inherit}
+.btn-submit{flex:1.6;padding:13px 0;border-radius:10px;font-size:13px;font-weight:800;text-transform:uppercase;letter-spacing:1px;border:none;color:#fff;background:var(--red);cursor:pointer;font-family:inherit}
+.btn-submit:disabled{background:var(--baby);cursor:not-allowed}
 #reportBox{display:none}
-.copy-btn{margin-top:10px;width:100%;padding:11px;border-radius:10px;border:1.5px solid var(--deep);background:#fff;color:var(--deep);font-weight:700;font-size:14px;cursor:pointer}
+#successScreen{display:none;min-height:80vh;align-items:center;justify-content:center;padding:20px}
+.success-card{background:var(--navy);border-radius:20px;padding:36px 28px;max-width:440px;text-align:center;margin:0 auto;color:#fff}
+.success-check{width:56px;height:56px;border-radius:50%;background:var(--good);color:#fff;font-size:28px;display:flex;align-items:center;justify-content:center;margin:0 auto 16px}
+.ghost-wide{width:100%;padding:12px;background:none;border:2px solid var(--baby);border-radius:10px;color:var(--ink);font-size:13px;font-weight:700;cursor:pointer;margin-top:4px;font-family:inherit;text-transform:uppercase;letter-spacing:1px}
 </style>
 </head>
 <body>
 
 <div id="app">
-<header><div class="wrap">
-  <div class="kicker">Austin-Central · End of Shift</div>
-  <h1>Shift Lead Wash</h1>
-  <p class="sub">Only sections you use appear in the report. Drafts save automatically on this device.</p>
-  <div class="rope"></div>
-</div></header>
+<div class="wrap">
+  <div class="brand-card">
+    <div class="bubble1"></div><div class="bubble2"></div>
+    <div class="logo">Big<span>Blue</span></div>
+    <div class="logo-sub">Swim School</div>
+    <div class="brand-title">The Wash</div>
+  </div>
 
-<main>
-  <section class="lane"><div class="lane-head"><div class="lane-num">1</div><h2 class="lane-title">Shift</h2></div>
-    <div class="fld"><label>Shift date <span class="req">*</span></label><input type="date" id="date"></div>
-    <div class="fld"><label>Shift lead <span class="req">*</span></label>
-      <div class="chips" id="leadChips"></div>
-      <input id="leadOther" placeholder="Name" style="margin-top:10px;display:none">
+  <section class="section"><div class="kicker">Shift Info</div><h3 class="sec-title">Who &amp; When</h3>
+    <div class="fld"><label>Shift Date</label><input type="date" id="date" style="max-width:220px"></div>
+    <div class="fld"><label>Shift Lead (choose up to 2)</label><div class="lead-chips" id="leadChips"></div></div>
+    <div class="fld" id="leadOtherFld" style="display:none"><label>Other Shift Lead Name</label><input id="leadOther" placeholder="Enter name"></div>
+  </section>
+
+  <section class="section"><div class="kicker">Trials</div><h3 class="sec-title">Trial Performance</h3>
+    <div class="grid3">
+      <div class="fld"><label>Trials Scheduled</label><input type="number" min="0" inputmode="numeric" id="scheduled"></div>
+      <div class="fld"><label>Trials Attended</label><input type="number" min="0" inputmode="numeric" id="attended"></div>
+      <div class="fld"><label>Trials Converted</label><input type="number" min="0" inputmode="numeric" id="converted"></div>
     </div>
-  </section>
-
-  <section class="lane"><div class="lane-head"><div class="lane-num">2</div><h2 class="lane-title">Trials</h2><span class="badge" id="convBadge" style="display:none"></span></div>
-    <div class="grid2">
-      <div class="fld"><label>Scheduled <span class="req">*</span></label><input type="number" min="0" inputmode="numeric" id="scheduled" placeholder="0"></div>
-      <div class="fld"><label>Attended <span class="req">*</span></label><input type="number" min="0" inputmode="numeric" id="attended" placeholder="0"></div>
-      <div class="fld"><label>Converted <span class="req">*</span></label><input type="number" min="0" inputmode="numeric" id="converted" placeholder="0"></div>
-      <div class="fld"><label>Non-trial conversions</label><input type="number" min="0" inputmode="numeric" id="nonTrial" placeholder="0"></div>
-    </div>
-    <p class="err" id="numErr" style="display:none"></p>
-    <p class="stats" id="statsLine"></p>
-  </section>
-
-  <section class="lane"><div class="lane-head"><div class="lane-num">3</div><h2 class="lane-title">Huddles</h2></div>
-    <div class="fld"><label>Pre-shift: what was covered? <span class="req">*</span></label><textarea id="preShift" rows="2" placeholder="Focus points, goals, callouts…"></textarea></div>
-    <div class="fld"><label>Post-shift: what was covered? <span class="req">*</span></label><textarea id="postShift" rows="2" placeholder="Wins, misses, handoffs…"></textarea></div>
-  </section>
-
-  <section class="lane"><div class="lane-head"><div class="lane-num">4</div><h2 class="lane-title">Trial non-conversions</h2></div>
-    <p class="hint" id="ncHint">Log one entry per family that attended but didn't enroll.</p>
-    <div class="nudge" id="ncNudge" style="display:none"></div>
-    <div id="ncList"></div>
-    <button class="add-btn" type="button" onclick="addEntry('nc')">+ Add non-conversion</button>
-  </section>
-
-  <section class="lane"><div class="lane-head"><div class="lane-num">5</div><h2 class="lane-title">Withdrawals</h2></div>
-    <p class="hint">One entry per family withdrawing from weekly lessons.</p>
-    <div id="wdList"></div>
-    <button class="add-btn" type="button" onclick="addEntry('wd')">+ Add withdrawal</button>
-  </section>
-
-  <section class="lane"><div class="lane-head"><div class="lane-num">6</div><h2 class="lane-title">Staffing</h2></div>
-    <p class="hint">Call-outs, no-shows, swaps, and coverage.</p>
-    <div id="stList"></div>
-    <button class="add-btn" type="button" onclick="addEntry('st')">+ Add staffing entry</button>
-  </section>
-
-  <section class="lane"><div class="lane-head"><div class="lane-num">7</div><h2 class="lane-title">Shoutouts</h2></div>
-    <p class="hint">Name the specific behavior — it feeds recognition.</p>
-    <div id="soList"></div>
-    <button class="add-btn" type="button" onclick="addEntry('so')">+ Add shoutout</button>
-  </section>
-
-  <section class="lane"><div class="lane-head"><div class="lane-num">8</div><h2 class="lane-title">Training</h2></div>
-    <p class="hint">Leave blank anything that didn't happen today.</p>
-    <div class="fld"><label>Certs completed today (who and what)</label><textarea id="trCerts" rows="2"></textarea></div>
-    <div class="fld"><label>Shadowing / half-teaching done today</label><textarea id="trShadow" rows="2"></textarea></div>
-    <div class="fld"><label>Readiness observations (who needs more reps, in what)</label><textarea id="trReadiness" rows="2"></textarea></div>
-    <div class="fld"><label>Upcoming training needs</label><textarea id="trUpcoming" rows="2"></textarea></div>
-  </section>
-
-  <section class="lane"><div class="lane-head"><div class="lane-num">9</div><h2 class="lane-title">Ops</h2></div>
-    <div class="fld"><label>Shift flow (how did the shift run?)</label><textarea id="opsFlow" rows="2"></textarea></div>
-    <div class="fld"><label>Customer recovery (saves, complaints handled)</label><textarea id="opsRecovery" rows="2"></textarea></div>
-    <div class="fld"><label>Billing (balances, account issues)</label><textarea id="opsBilling" rows="2"></textarea></div>
-  </section>
-
-  <section class="lane"><div class="lane-head"><div class="lane-num">10</div><h2 class="lane-title">Incident</h2><span class="badge" id="incBadge" style="display:none;background:var(--flag)">Active</span></div>
-    <div class="fld"><label>Any incident this shift?</label>
-      <div class="yn"><button type="button" class="yes" id="incYes">Yes</button><button type="button" class="no on" id="incNo">No</button></div>
-    </div>
-    <div class="inc-body" id="incBody">
-      <div class="fld"><label>Type <span class="req">*</span></label><select id="incType"></select></div>
-      <div class="fld"><label>Description <span class="req">*</span></label><textarea id="incDesc" rows="3"></textarea></div>
-      <div class="fld"><label>Action taken <span class="req">*</span></label><textarea id="incAction" rows="2"></textarea></div>
-      <div class="fld"><label>Reported to GM? <span class="req">*</span></label>
-        <div class="yn"><button type="button" class="yes" id="incGMYes">Yes</button><button type="button" class="no" id="incGMNo">No</button></div>
+    <div class="fld"><label>Non-Trial Conversions</label><input type="number" min="0" inputmode="numeric" id="nonTrial" style="max-width:200px"></div>
+    <p class="err-msg" id="numErr" style="display:none"></p>
+    <div class="metric-cards">
+      <div class="metric show">
+        <div class="metric-top"><span class="metric-label">Show Rate</span><span class="badge b-neutral" id="showBadge">No Data</span></div>
+        <div class="metric-val" id="showVal">—</div>
+        <div class="metric-sub">Attended ÷ Scheduled</div>
       </div>
-      <p class="err" id="incGMWarn" style="display:none">Incidents should be reported to the GM before closing the shift.</p>
+      <div class="metric conv">
+        <div class="metric-top"><span class="metric-label">Conversion Rate</span><span class="badge b-neutral" id="convBadge">No Data</span></div>
+        <div class="metric-val" id="convVal">—</div>
+        <div class="metric-sub">Converted ÷ Attended</div>
+      </div>
+    </div>
+    <div class="gate" id="gateBox" style="display:none">
+      <div class="gate-title">Reflection required — metrics below threshold</div>
+      <div class="gate-sub">Conversion under 50% or show rate under 70%. Before this wash saves: what happened, and what will we do differently?</div>
+      <textarea id="reflection" placeholder="What drove the miss, and the one change for next shift..."></textarea>
     </div>
   </section>
 
-  <section class="lane"><div class="lane-head"><div class="lane-num">11</div><h2 class="lane-title">Facility &amp; prep</h2></div>
-    <div class="fld"><label>Facility log — open items (broken, needed, unresolved)</label><textarea id="facOpen" rows="2"></textarea></div>
-    <div class="fld"><label>Facility log — items completed this shift</label><textarea id="facDone" rows="2"></textarea></div>
-    <div class="fld"><label>Prep work completed for the next day</label><textarea id="prep" rows="2"></textarea></div>
+  <section class="section"><div class="kicker">Notes</div><h3 class="sec-title">Pre-Shift / Post-Shift</h3>
+    <div class="fld"><label>Pre-Shift Notes</label><textarea id="preShift" style="min-height:70px"></textarea></div>
+    <div class="fld"><label>Post-Shift Notes</label><textarea id="postShift" style="min-height:70px"></textarea></div>
   </section>
 
-  <div class="warn-banner" id="errBanner"></div>
+  <section class="section"><div class="kicker">Non-Conversions</div><h3 class="sec-title" id="ncTitle">Non-Conversion Reasons (0)</h3>
+    <div id="ncList"></div>
+    <button class="btn btn-blue" type="button" onclick="addEntry('nc')">+ Add Non-Conversion</button>
+  </section>
 
-  <section class="lane" id="reportBox"><div class="lane-head"><div class="lane-num">✓</div><h2 class="lane-title">Shift report</h2></div>
+  <section class="section"><div class="kicker">Withdrawals</div><h3 class="sec-title" id="wdTitle">Withdrawals (0)</h3>
+    <div id="wdList"></div>
+    <button class="btn btn-blue" type="button" onclick="addEntry('wd')">+ Add Withdrawal</button>
+  </section>
+
+  <section class="section"><div class="kicker">Team</div><h3 class="sec-title" id="stTitle">Staffing Notes (0)</h3>
+    <div id="stList"></div>
+    <button class="btn btn-blue" type="button" onclick="addEntry('st')">+ Add Staffing Note</button>
+  </section>
+
+  <section class="section"><div class="kicker">Recognition</div><h3 class="sec-title" id="soTitle">Shoutouts (0)</h3>
+    <div id="soList"></div>
+    <button class="btn btn-red" type="button" onclick="addEntry('so')">+ Add Shoutout</button>
+  </section>
+
+  <section class="section"><div class="kicker">Training</div><h3 class="sec-title">Training Status</h3>
+    <div class="fld"><label>Certs</label><input id="trCerts"></div>
+    <div class="fld"><label>Shadowing</label><input id="trShadow"></div>
+    <div class="fld"><label>Readiness</label><input id="trReadiness"></div>
+    <div class="fld"><label>Upcoming</label><input id="trUpcoming"></div>
+  </section>
+
+  <section class="section"><div class="kicker">Operations</div><h3 class="sec-title">Ops Notes</h3>
+    <div class="fld"><label>Shift Flow</label><textarea id="opsFlow"></textarea></div>
+    <div class="fld"><label>Customer Recovery</label><textarea id="opsRecovery"></textarea></div>
+    <div class="fld"><label>Billing</label><textarea id="opsBilling"></textarea></div>
+  </section>
+
+  <section class="section"><div class="kicker">Safety</div><h3 class="sec-title">Incident Report</h3>
+    <label class="incident-chk"><input type="checkbox" id="hadIncident"> An incident occurred this shift</label>
+    <div id="incBody">
+      <div class="fld"><label>Incident Type</label><select id="incType"></select></div>
+      <div class="fld"><label>Description</label><textarea id="incDesc"></textarea></div>
+      <div class="fld"><label>Action Taken</label><textarea id="incAction"></textarea></div>
+      <div class="fld"><label>Reported to GM</label>
+        <select id="incGM"><option value="">Select...</option><option value="Yes">Yes</option><option value="No">No</option></select>
+      </div>
+      <p class="err-msg" id="incGMWarn" style="display:none">Incidents should be reported to the GM before closing the shift.</p>
+    </div>
+  </section>
+
+  <section class="section"><div class="kicker">Facility</div><h3 class="sec-title">Facility Log (carries over until closed)</h3>
+    <div class="fac-note">Open items stay on this list shift after shift — for every shift lead. Check them off when resolved.</div>
+    <div class="fac-status" id="facStatus"></div>
+    <div id="facList"></div>
+    <button class="btn btn-blue" type="button" onclick="addFacility()">+ Add Facility Item</button>
+    <div class="fld" style="margin-top:18px"><label>Prep for Next Day</label><textarea id="prep"></textarea></div>
+  </section>
+
+  <div class="save-banner" id="errBanner" style="display:none;background:var(--pink)"></div>
+
+  <section class="section" id="reportBox"><div class="kicker">Preview</div><h3 class="sec-title">Today's Wash</h3>
     <pre id="reportPre"></pre>
-    <button class="copy-btn" type="button" id="copyBtn" onclick="copyReport()">Copy report text</button>
+    <button class="btn btn-blue" type="button" id="copyBtn" style="margin-top:10px;width:100%" onclick="copyReport()">Copy Wash Text</button>
   </section>
 
-  <button class="ghost" type="button" onclick="clearAll()">Clear shift &amp; start fresh</button>
-</main>
+  <button class="ghost-wide" type="button" onclick="clearAll()">Clear &amp; Start Fresh</button>
+</div>
 
-<footer><div class="wrap">
-  <div class="foot-status"><span id="footMsg"></span></div>
+<footer><div class="foot-inner">
+  <div class="foot-msg" id="footMsg"></div>
   <div class="foot-btns">
     <button class="btn-preview" type="button" id="previewBtn" onclick="togglePreview()">Preview</button>
-    <button class="btn-submit" type="button" id="submitBtn" onclick="submitForm()">Submit shift report</button>
+    <button class="btn-submit" type="button" id="submitBtn" onclick="submitForm()">Save Wash</button>
   </div>
 </div></footer>
 </div>
 
 <div id="successScreen"><div class="success-card">
   <div class="success-check">✓</div>
-  <h1 style="font-size:22px;color:var(--navy);margin:0 0 8px">Shift report submitted</h1>
-  <p style="color:var(--sub);font-size:14.5px;margin:0 0 24px" id="successMsg"></p>
-  <button type="button" onclick="startNew()" style="padding:13px 28px;border-radius:10px;border:none;background:linear-gradient(150deg,var(--blue),var(--deep));color:#fff;font-weight:700;font-size:15px;cursor:pointer">Start a new shift</button>
+  <h1 style="font-size:22px;margin:0 0 8px;font-weight:900">Wash saved</h1>
+  <p style="color:var(--baby);font-size:14px;margin:0 0 24px;font-weight:700" id="successMsg"></p>
+  <button type="button" onclick="startNew()" class="btn btn-red" style="padding:13px 28px;font-size:14px">Start a New Wash</button>
 </div></div>
 
 <script>
 /* ================================================================
    SETUP: paste your Apps Script Web App URL between the quotes.
-   It looks like: https://script.google.com/macros/s/AKfycb.../execa
    ================================================================ */
-var SCRIPT_URL = "https://script.google.com/macros/s/AKfycbzdv_-WHnrtpeVFgLx8U4Rt70Dpazcd6BtDbuYv7WS-GkBFVAGZjBtHgCmTFTJNb4VV_A/exec";
+var SCRIPT_URL = "PASTE_YOUR_WEB_APP_URL_HERE";
 
-// ---------- Option lists (edit freely) ----------
-var LEADS = ["Valerie Parks","Ken Spivey","Makala Moore","Natalia Bueno","Other"];
-var BARRIERS = ["Price","Schedule fit","Wants to think it over","Child not ready","Comparing other schools","Distance / location","Needs spouse/partner decision","Other"];
-var FOLLOWUPS = ["Call scheduled","Email sent","Text sent","Left voicemail","No follow-up needed","Other"];
-var WD_REASONS = ["Moving away","Financial","Schedule conflict","Switching activities","Dissatisfied with progress","Instructor concern","Medical","Seasonal break","Other"];
-var STAFF_STATUS = ["Called out — covered","Called out — uncovered","Late","Left early","No-show","Shift swap"];
-var SHOUT_CATS = ["Teaching quality","Customer service","Teamwork","Above & beyond","Safety","Sales / conversion"];
-var INCIDENT_TYPES = ["Injury — minor","Injury — major","Pool chemistry","Behavioral","Customer complaint (escalated)","Facility / equipment","Other"];
+// ---------- Taxonomies (edit freely) ----------
+var STAFF = ["Abigail Carrington","Alexis Turner","Arielle Lugo Alonso","Austin King","Ben Williams","Brinklee Heim","Carlos Maldonado-Bueno","Desiree Delgado","Destiny Madrid","Isaiah Uzochukwu","Julia Rosales","Juliana Marmolejo","Ken Spivey","Kingsley Nichols","Klarissa Mascorro","Koko Flores","Layla Turner","Makala Moore","Megan Margraves","Menaka Krishnan","Natalia Maldonado-Bueno","Nico Desai","Omar Barreat","Patrick Jesus","Valerie Parks","Zachariah Tukhi"];
+var LEAD_OPTIONS = ["Ken Spivey","Makala Moore","Natalia Maldonado-Bueno","Valerie Parks","Other"];
+var BARRIERS = ["Schedule Constraint","Decision Pending — Needs to Consult Partner","Drop-In Preference","Financial","Swimmer Emotional / Resistance","Already Enrolled Elsewhere","Timing — Not Ready Yet","Trial Experience Concerns","Other"];
+var FOLLOWUPS = ["CRM Created — Follow-up This Week","CRM Created — Follow-up Next Week","Follow-up Call Completed","Drop-In Discussed","Promo Applied to Account","Other"];
+var WD_REASONS = ["Taking a Break","Trying the Month","Medical","Travel / Vacation","Scheduling Conflict","Price Increase","Financial","Moving Away","Learned to Swim","Non-attendance / Balance","2nd Lesson","Service Was Unsatisfactory","LB Error","Time Not Offered","Other"];
+var STAFF_STATUS = ["Late","Unapproved","Approved","NCNS – No Call No Show","SI – Sick/Injury"];
+var SHOUT_CATS = ["Shows Passion for Mission","Reach Beyond Grasp","Embrace Differences","Radiate Energy","Go the Extra Mile","Make Teamwork Happen"];
+var INCIDENT_TYPES = ["Minor Injury","Major Injury","Drowning","AFR Solid / Vomit","AFR Liquid","Customer","Other"];
 
-var DRAFT_KEY = "slw-draft-v1";
+// Reflection gate thresholds
+var CONV_THRESHOLD = 0.5;
+var SHOW_THRESHOLD = 0.7;
+
+var DRAFT_KEY = "wash-draft-v2";
 var lists = { nc: [], wd: [], st: [], so: [] };
-var lead = "", hadIncident = false, incGM = "", sending = false;
+var facility = [];
+var leads = [];
+var sending = false;
 
 function $(id){ return document.getElementById(id); }
 function esc(s){ var d=document.createElement('div'); d.textContent=s==null?'':String(s); return d.innerHTML; }
+function num(v){ var n=parseFloat(v); return isFinite(n)?n:NaN; }
+function pct(r){ return isFinite(r)? Math.round(r*100)+"%" : "—"; }
 
-function todayStr(){
+function todayISO(){
   var d=new Date();
   return d.getFullYear()+"-"+String(d.getMonth()+1).padStart(2,"0")+"-"+String(d.getDate()).padStart(2,"0");
 }
-
-// ---------- Lead chips ----------
-function renderLeads(){
-  var html = "";
-  for (var i=0;i<LEADS.length;i++){
-    var n = LEADS[i];
-    html += '<button type="button" class="chip-btn'+(lead===n?' on':'')+'" onclick="pickLead(\''+n.replace(/'/g,"\\'")+'\')">'+esc(n)+'</button>';
-  }
-  $("leadChips").innerHTML = html;
-  $("leadOther").style.display = lead==="Other" ? "block" : "none";
+function fmtDate(iso){
+  if(!iso) return "—";
+  var p=iso.split("-");
+  var dt=new Date(+p[0], +p[1]-1, +p[2]);
+  return dt.toLocaleDateString("en-US",{weekday:"long",month:"long",day:"numeric",year:"numeric"});
 }
-function pickLead(n){ lead = n; renderLeads(); refresh(); }
+
+// ---------- Lead chips (up to 2) ----------
+function renderLeads(){
+  var html="";
+  for (var i=0;i<LEAD_OPTIONS.length;i++){
+    var n=LEAD_OPTIONS[i];
+    var on=leads.indexOf(n)>=0;
+    var off=!on && leads.length>=2;
+    html += '<span class="lead-chip'+(on?' on':'')+(off?' off':'')+'" onclick="toggleLead('+i+')">'+(on?'✓ ':'')+esc(n)+'</span>';
+  }
+  $("leadChips").innerHTML=html;
+  $("leadOtherFld").style.display = leads.indexOf("Other")>=0 ? "block" : "none";
+}
+function toggleLead(i){
+  var n=LEAD_OPTIONS[i];
+  var idx=leads.indexOf(n);
+  if (idx>=0) leads.splice(idx,1);
+  else if (leads.length<2) leads.push(n);
+  renderLeads(); refresh();
+}
+function leadNames(){
+  return leads.map(function(n){ return n==="Other" ? ($("leadOther").value||"Other") : n; }).join(" & ");
+}
 
 // ---------- Dynamic entry lists ----------
-function selectHtml(kind, idx, field, options, val){
-  var h = '<select onchange="setEntry(\''+kind+'\','+idx+',\''+field+'\',this.value)"><option value="">Select…</option>';
-  for (var i=0;i<options.length;i++){
-    h += '<option value="'+esc(options[i])+'"'+(val===options[i]?' selected':'')+'>'+esc(options[i])+'</option>';
-  }
-  return h + '</select>';
+function selHtml(kind,idx,field,options,val,ph){
+  var h='<select onchange="setEntry(\''+kind+'\','+idx+',\''+field+'\',this.value)"><option value="">'+esc(ph)+'</option>';
+  for (var i=0;i<options.length;i++) h+='<option value="'+esc(options[i])+'"'+(val===options[i]?' selected':'')+'>'+esc(options[i])+'</option>';
+  return h+'</select>';
 }
-function inputHtml(kind, idx, field, val, ph){
-  return '<input value="'+esc(val)+'" placeholder="'+esc(ph||'')+'" oninput="setEntry(\''+kind+'\','+idx+',\''+field+'\',this.value)">';
-}
-function textareaHtml(kind, idx, field, val, ph){
-  return '<textarea rows="2" placeholder="'+esc(ph||'')+'" oninput="setEntry(\''+kind+'\','+idx+',\''+field+'\',this.value)">'+esc(val)+'</textarea>';
-}
-function ynHtml(kind, idx, field, val){
-  return '<div class="yn">'+
-    '<button type="button" class="yes'+(val==="Yes"?' on':'')+'" onclick="setEntry(\''+kind+'\','+idx+',\''+field+'\',\'Yes\');renderList(\''+kind+'\')">Yes</button>'+
-    '<button type="button" class="no'+(val==="No"?' on':'')+'" onclick="setEntry(\''+kind+'\','+idx+',\''+field+'\',\'No\');renderList(\''+kind+'\')">No</button></div>';
+function inpHtml(kind,idx,field,val,ph){
+  return '<input value="'+esc(val||"")+'" placeholder="'+esc(ph||"")+'" oninput="setEntry(\''+kind+'\','+idx+',\''+field+'\',this.value)">';
 }
 
 var LIST_DEFS = {
-  nc: { el:"ncList", title:"Non-conversion", blank:function(){return {barrier:"",context:"",followUp:""};},
-    body:function(e,i){ return ''+
-      '<div class="fld"><label>Barrier <span class="req">*</span></label>'+selectHtml('nc',i,'barrier',BARRIERS,e.barrier)+'</div>'+
-      '<div class="fld"><label>Context</label>'+textareaHtml('nc',i,'context',e.context,"What the family said…")+'</div>'+
-      '<div class="fld"><label>Follow-up</label>'+selectHtml('nc',i,'followUp',FOLLOWUPS,e.followUp)+'</div>'; },
-    flagged:function(){return false;} },
-  wd: { el:"wdList", title:"Withdrawal", blank:function(){return {reason:"",details:"",gm:""};},
-    body:function(e,i){ return ''+
-      '<div class="fld"><label>Reason <span class="req">*</span></label>'+selectHtml('wd',i,'reason',WD_REASONS,e.reason)+'</div>'+
-      '<div class="fld"><label>Details</label>'+textareaHtml('wd',i,'details',e.details,"Save attempt made? Anything recoverable?")+'</div>'+
-      '<div class="fld"><label>GM escalation required? <span class="req">*</span></label>'+ynHtml('wd',i,'gm',e.gm)+'</div>'; },
-    flagged:function(e){return e.gm==="Yes";} },
-  st: { el:"stList", title:"Staffing", blank:function(){return {who:"",status:"",coveredBy:""};},
-    body:function(e,i){ return ''+
-      '<div class="fld"><label>Staff out <span class="req">*</span></label>'+inputHtml('st',i,'who',e.who,"Name")+'</div>'+
-      '<div class="fld"><label>Status <span class="req">*</span></label>'+selectHtml('st',i,'status',STAFF_STATUS,e.status)+'</div>'+
-      '<div class="fld"><label>Covered by</label>'+inputHtml('st',i,'coveredBy',e.coveredBy,"Name (leave blank if uncovered)")+'</div>'; },
-    flagged:function(e){return e.status==="Called out — uncovered"||e.status==="No-show";} },
-  so: { el:"soList", title:"Shoutout", blank:function(){return {who:"",category:"",why:""};},
-    body:function(e,i){ return ''+
-      '<div class="fld"><label>Teammate <span class="req">*</span></label>'+inputHtml('so',i,'who',e.who,"Name")+'</div>'+
-      '<div class="fld"><label>Category</label>'+selectHtml('so',i,'category',SHOUT_CATS,e.category)+'</div>'+
-      '<div class="fld"><label>Why</label>'+textareaHtml('so',i,'why',e.why,"The specific thing they did…")+'</div>'; },
-    flagged:function(){return false;} }
+  nc: { el:"ncList", titleEl:"ncTitle", titleTxt:"Non-Conversion Reasons", cls:"",
+    body:function(e,i){ return '<div class="grid2">'+selHtml('nc',i,'barrier',BARRIERS,e.barrier,"Barrier...")+inpHtml('nc',i,'context',e.context,"Context")+'</div>'+
+      '<div class="row-line">'+selHtml('nc',i,'followUp',FOLLOWUPS,e.followUp,"Follow-Up...")+
+      '<button type="button" class="btn btn-ghost" onclick="rmEntry(\'nc\','+i+')">Remove</button></div>'; } },
+  wd: { el:"wdList", titleEl:"wdTitle", titleTxt:"Withdrawals", cls:"",
+    body:function(e,i){ return '<div class="grid2">'+selHtml('wd',i,'reason',WD_REASONS,e.reason,"Reason...")+inpHtml('wd',i,'details',e.details,"Details")+'</div>'+
+      '<div class="row-line"><div style="max-width:180px;flex-shrink:0">'+selHtml('wd',i,'gm',["Yes","No"],e.gm,"GM Escalation?")+'</div>'+
+      '<button type="button" class="btn btn-ghost" onclick="rmEntry(\'wd\','+i+')">Remove</button></div>'; } },
+  st: { el:"stList", titleEl:"stTitle", titleTxt:"Staffing Notes", cls:"",
+    body:function(e,i){
+      var covered = STAFF.concat(["Not Covered"]);
+      return '<div class="grid2">'+selHtml('st',i,'who',STAFF,e.who,"Staff Out...")+selHtml('st',i,'status',STAFF_STATUS,e.status,"Status...")+'</div>'+
+      '<div class="row-line">'+selHtml('st',i,'coveredBy',covered,e.coveredBy,"Covered By...")+
+      '<button type="button" class="btn btn-ghost" onclick="rmEntry(\'st\','+i+')">Remove</button></div>'; } },
+  so: { el:"soList", titleEl:"soTitle", titleTxt:"Shoutouts", cls:" shout",
+    body:function(e,i){ return '<div class="grid2">'+selHtml('so',i,'who',STAFF,e.who,"Teammate...")+selHtml('so',i,'category',SHOUT_CATS,e.category,"Category...")+'</div>'+
+      '<div class="row-line">'+inpHtml('so',i,'why',e.why,"Why")+
+      '<button type="button" class="btn btn-ghost yellow" onclick="rmEntry(\'so\','+i+')">Remove</button></div>'; } }
 };
 
 function renderList(kind){
-  var def = LIST_DEFS[kind], arr = lists[kind], html = "";
-  for (var i=0;i<arr.length;i++){
-    html += '<div class="entry'+(def.flagged(arr[i])?' flagged':'')+'">'+
-      '<div class="entry-head"><span class="entry-title">'+def.title+' #'+(i+1)+'</span>'+
-      '<button type="button" class="rm" onclick="rmEntry(\''+kind+'\','+i+')">Remove</button></div>'+
-      def.body(arr[i], i) + '</div>';
-  }
-  $(def.el).innerHTML = html;
+  var def=LIST_DEFS[kind], arr=lists[kind], html="";
+  for (var i=0;i<arr.length;i++) html+='<div class="row-card'+def.cls+'">'+def.body(arr[i],i)+'</div>';
+  $(def.el).innerHTML=html;
+  $(def.titleEl).textContent = def.titleTxt+" ("+arr.length+")";
 }
-function addEntry(kind){ lists[kind].push(LIST_DEFS[kind].blank()); renderList(kind); refresh(); }
+function addEntry(kind){ lists[kind].push({}); renderList(kind); refresh(); }
 function rmEntry(kind,i){ lists[kind].splice(i,1); renderList(kind); refresh(); }
 function setEntry(kind,i,field,val){ if(lists[kind][i]) lists[kind][i][field]=val; refresh(); }
 
-// ---------- Incident toggles ----------
-function setIncident(v){
-  hadIncident = v;
-  $("incYes").className = "yes"+(v?" on":"");
-  $("incNo").className = "no"+(v?"":" on");
-  $("incBody").style.display = v ? "block" : "none";
-  $("incBadge").style.display = v ? "inline" : "none";
-  refresh();
+// ---------- Facility log (shared via backend) ----------
+function renderFacility(){
+  var html="";
+  for (var i=0;i<facility.length;i++){
+    var f=facility[i];
+    html += '<div class="fac-row">'+
+      '<input type="checkbox" '+(f.closed?'checked ':'')+'onchange="facToggle('+i+',this.checked)">'+
+      '<input class="'+(f.closed?'fac-closed':'')+'" placeholder="Describe the item..." value="'+esc(f.item||"")+'" oninput="facEdit('+i+',this.value)">'+
+      '<button type="button" class="btn btn-ghost" style="padding:4px 10px" onclick="facRemove('+i+')">×</button></div>';
+  }
+  $("facList").innerHTML=html;
 }
-function setIncGM(v){
-  incGM = v;
-  $("incGMYes").className = "yes"+(v==="Yes"?" on":"");
-  $("incGMNo").className = "no"+(v==="No"?" on":"");
-  $("incGMWarn").style.display = v==="No" ? "block" : "none";
+function facToggle(i,v){ if(facility[i]){ facility[i].closed=v; renderFacility(); refresh(); } }
+function facEdit(i,v){ if(facility[i]){ facility[i].item=v; refresh(); } }
+function facRemove(i){ facility.splice(i,1); renderFacility(); refresh(); }
+function addFacility(){ facility.push({item:"",closed:false,added:todayISO()}); renderFacility(); refresh(); }
+
+function loadFacilityFromServer(){
+  if (SCRIPT_URL.indexOf("PASTE_YOUR")===0){
+    $("facStatus").textContent="Not connected — items added here will save once the backend URL is set.";
+    $("facStatus").style.color="var(--badfg)";
+    return;
+  }
+  $("facStatus").textContent="Loading shared facility log…";
+  fetch(SCRIPT_URL+"?action=facility", { method:"GET", redirect:"follow" })
+    .then(function(r){ return r.json(); })
+    .then(function(out){
+      if (!out.ok) throw new Error(out.error||"load failed");
+      var server=(out.items||[]).map(function(s){ return {item:s.item, closed:false, added:s.added||""}; });
+      // Merge: keep local closed flags / local-only new items from the draft.
+      var local=facility.slice();
+      var byText={};
+      server.forEach(function(s){ byText[s.item]=s; });
+      local.forEach(function(l){
+        if (l.item && byText[l.item]) byText[l.item].closed = l.closed;
+        else if (l.item && l.item.trim()) server.push(l);
+      });
+      facility=server;
+      renderFacility();
+      $("facStatus").textContent = server.length ? "Shared log loaded — "+server.filter(function(f){return !f.closed;}).length+" open item(s)." : "No open facility items. Add one below if needed.";
+      $("facStatus").style.color="var(--good)";
+      refresh();
+    })
+    .catch(function(){
+      $("facStatus").textContent="Couldn't load the shared log — you can still add items; they'll sync on save.";
+      $("facStatus").style.color="var(--badfg)";
+    });
+}
+
+// ---------- Incident ----------
+function setIncident(v){
+  $("incBody").style.display=v?"block":"none";
   refresh();
 }
 
-// ---------- State collection ----------
+// ---------- State ----------
 function getState(){
   return {
-    date: $("date").value, lead: lead, leadOther: $("leadOther").value,
-    scheduled: $("scheduled").value, attended: $("attended").value,
-    converted: $("converted").value, nonTrial: $("nonTrial").value,
-    preShift: $("preShift").value, postShift: $("postShift").value,
-    nonConversions: lists.nc, withdrawals: lists.wd, staffing: lists.st, shoutouts: lists.so,
-    trCerts: $("trCerts").value, trShadow: $("trShadow").value,
-    trReadiness: $("trReadiness").value, trUpcoming: $("trUpcoming").value,
-    opsFlow: $("opsFlow").value, opsRecovery: $("opsRecovery").value, opsBilling: $("opsBilling").value,
-    hadIncident: hadIncident, incType: $("incType").value, incDesc: $("incDesc").value,
-    incAction: $("incAction").value, incGM: incGM,
-    facOpen: $("facOpen").value, facDone: $("facDone").value, prep: $("prep").value
+    date:$("date").value, leads:leads, leadOther:$("leadOther").value,
+    scheduled:$("scheduled").value, attended:$("attended").value, converted:$("converted").value, nonTrial:$("nonTrial").value,
+    reflection:$("reflection").value,
+    preShift:$("preShift").value, postShift:$("postShift").value,
+    nonConversions:lists.nc, withdrawals:lists.wd, staffing:lists.st, shoutouts:lists.so,
+    trCerts:$("trCerts").value, trShadow:$("trShadow").value, trReadiness:$("trReadiness").value, trUpcoming:$("trUpcoming").value,
+    opsFlow:$("opsFlow").value, opsRecovery:$("opsRecovery").value, opsBilling:$("opsBilling").value,
+    hadIncident:$("hadIncident").checked, incType:$("incType").value, incDesc:$("incDesc").value, incAction:$("incAction").value, incGM:$("incGM").value,
+    facilityLog:facility, prep:$("prep").value
   };
 }
 
-// ---------- Validation + live stats ----------
+function badge(el, rate, goodAt, warnAt){
+  var b=$(el);
+  if (!isFinite(rate)){ b.className="badge b-neutral"; b.textContent="No Data"; return; }
+  if (rate>=goodAt){ b.className="badge b-good"; b.textContent="Strong"; }
+  else if (rate>=warnAt){ b.className="badge b-warn"; b.textContent="Steady"; }
+  else { b.className="badge b-bad"; b.textContent="Needs Focus"; }
+}
+
 function refresh(){
-  var f = getState();
-  var sch = f.scheduled===""?null:+f.scheduled;
-  var att = f.attended===""?null:+f.attended;
-  var conv = f.converted===""?null:+f.converted;
-  var numErr = null;
-  if (att!=null && sch!=null && att>sch) numErr = "Attended can't exceed scheduled.";
-  else if (conv!=null && att!=null && conv>att) numErr = "Converted can't exceed attended.";
-  $("numErr").style.display = numErr?"block":"none";
-  $("numErr").textContent = numErr||"";
+  var f=getState();
+  var sch=num(f.scheduled), att=num(f.attended), conv=num(f.converted);
+  var show = (sch>0 && isFinite(att)) ? att/sch : NaN;
+  var cr = (att>0 && isFinite(conv)) ? conv/att : NaN;
 
-  var showRate = (sch>0 && att!=null) ? Math.round(att/sch*100) : null;
-  var convRate = (att>0 && conv!=null) ? Math.round(conv/att*100) : null;
-  var stats = "";
-  if (!numErr && showRate!=null){
-    stats = "Show rate <b>"+showRate+"%</b>";
-    if (convRate!=null) stats += " · Conversion <b>"+convRate+"%</b> (location avg ~38%)";
+  var numErr=null;
+  if (isFinite(att)&&isFinite(sch)&&att>sch) numErr="Trials attended can't exceed trials scheduled.";
+  else if (isFinite(conv)&&isFinite(att)&&conv>att) numErr="Trials converted can't exceed trials attended.";
+  $("numErr").style.display=numErr?"block":"none";
+  $("numErr").textContent=numErr||"";
+
+  $("showVal").textContent=pct(show);
+  $("convVal").textContent=pct(cr);
+  badge("showBadge", show, 0.85, SHOW_THRESHOLD);
+  badge("convBadge", cr, 0.6, CONV_THRESHOLD);
+
+  var gate = (isFinite(cr)&&cr<CONV_THRESHOLD) || (isFinite(show)&&show<SHOW_THRESHOLD);
+  $("gateBox").style.display=gate?"block":"none";
+
+  $("incGMWarn").style.display = (f.hadIncident && f.incGM==="No") ? "block" : "none";
+
+  // Validation (matches the wash spec)
+  var missing=[];
+  if (!f.date) missing.push("shift date");
+  if (leads.length===0) missing.push("shift lead");
+  if (leads.indexOf("Other")>=0 && !f.leadOther.trim()) missing.push("other lead name");
+  if (numErr) missing.push("fix trial numbers");
+  if (gate && !f.reflection.trim()) missing.push("reflection (below threshold)");
+  if (f.hadIncident){
+    if (!f.incType) missing.push("incident type");
+    if (!f.incDesc.trim()) missing.push("incident description");
+    if (!f.incGM) missing.push("incident — reported to GM?");
   }
-  $("statsLine").innerHTML = stats;
-  var badge = $("convBadge");
-  if (convRate!=null && !numErr){
-    badge.style.display="inline"; badge.textContent=convRate+"% conv";
-    badge.style.background = convRate>=38 ? "var(--ok)" : "var(--flag)";
-  } else badge.style.display="none";
 
-  var missed = (att!=null && conv!=null && !numErr) ? att-conv : null;
-  $("ncHint").textContent = missed!=null
-    ? missed+" trial"+(missed===1?"":"s")+" attended but didn't convert."
-    : "Log one entry per family that attended but didn't enroll.";
-  var gap = (missed!=null && missed>lists.nc.length) ? missed-lists.nc.length : 0;
-  $("ncNudge").style.display = gap>0?"block":"none";
-  if (gap>0) $("ncNudge").textContent = gap+" non-conversion"+(gap===1?"":"s")+" not logged yet — add "+(gap===1?"an entry":"entries")+" below.";
+  var ready=missing.length===0;
+  $("footMsg").textContent = ready ? "Ready to save" : "Needed before save: "+missing.slice(0,3).join(", ")+(missing.length>3?"…":"");
+  $("submitBtn").disabled=!ready||sending;
 
-  // Required checks
-  var missing = [];
-  var leadOk = lead && (lead!=="Other" || f.leadOther.trim());
-  if (!f.date) missing.push("Shift date");
-  if (!leadOk) missing.push("Shift lead");
-  if (f.scheduled==="") missing.push("Trials scheduled");
-  if (f.attended==="") missing.push("Trials attended");
-  if (f.converted==="") missing.push("Trials converted");
-  if (!f.preShift.trim()) missing.push("Pre-shift notes");
-  if (!f.postShift.trim()) missing.push("Post-shift notes");
-  if (numErr) missing.push("Fix trial numbers");
-  if (hadIncident){
-    if (!f.incType) missing.push("Incident type");
-    if (!f.incDesc.trim()) missing.push("Incident description");
-    if (!f.incAction.trim()) missing.push("Incident action");
-    if (!incGM) missing.push("Incident — reported to GM?");
-  }
-  lists.nc.forEach(function(n,i){ if(!n.barrier) missing.push("Non-conversion #"+(i+1)+" barrier"); });
-  lists.wd.forEach(function(w,i){
-    if(!w.reason) missing.push("Withdrawal #"+(i+1)+" reason");
-    if(!w.gm) missing.push("Withdrawal #"+(i+1)+" GM escalation");
-  });
-  lists.st.forEach(function(s,i){ if(!s.who.trim()||!s.status) missing.push("Staffing #"+(i+1)+" details"); });
-  lists.so.forEach(function(s,i){ if(!s.who.trim()) missing.push("Shoutout #"+(i+1)+" teammate"); });
-
-  var ready = missing.length===0;
-  $("footMsg").textContent = ready ? "All required fields complete"
-    : missing.length+" required item"+(missing.length===1?"":"s")+" left: "+missing.slice(0,2).join(", ")+(missing.length>2?"…":"");
-  $("submitBtn").disabled = !ready || sending;
-
-  if ($("reportBox").style.display==="block") $("reportPre").textContent = buildReport(f);
+  if ($("reportBox").style.display==="block") $("reportPre").textContent=buildWashText(f);
   saveDraft(f);
   return ready;
 }
 
-// ---------- Draft save/load ----------
-var saveTimer = null;
+// ---------- Draft ----------
+var saveTimer=null;
 function saveDraft(f){
   clearTimeout(saveTimer);
-  saveTimer = setTimeout(function(){
-    try { localStorage.setItem(DRAFT_KEY, JSON.stringify(f)); } catch(e){}
-  }, 500);
+  saveTimer=setTimeout(function(){
+    try{ localStorage.setItem(DRAFT_KEY, JSON.stringify(f)); }catch(e){}
+  },500);
 }
 function loadDraft(){
-  var f = null;
-  try { var raw = localStorage.getItem(DRAFT_KEY); if (raw) f = JSON.parse(raw); } catch(e){}
+  var f=null;
+  try{ var raw=localStorage.getItem(DRAFT_KEY); if(raw) f=JSON.parse(raw); }catch(e){}
   if (!f) return;
-  $("date").value = f.date || todayStr();
-  lead = f.lead || ""; $("leadOther").value = f.leadOther || "";
-  ["scheduled","attended","converted","nonTrial","preShift","postShift","trCerts","trShadow","trReadiness","trUpcoming","opsFlow","opsRecovery","opsBilling","incType","incDesc","incAction","facOpen","facDone","prep"]
-    .forEach(function(k){ if ($(k) && f[k]!=null) $(k).value = f[k]; });
-  lists.nc = f.nonConversions||[]; lists.wd = f.withdrawals||[];
-  lists.st = f.staffing||[]; lists.so = f.shoutouts||[];
-  if (f.hadIncident) setIncident(true);
-  if (f.incGM) setIncGM(f.incGM);
+  $("date").value=f.date||todayISO();
+  leads=(f.leads||[]).slice(0,2);
+  $("leadOther").value=f.leadOther||"";
+  ["scheduled","attended","converted","nonTrial","reflection","preShift","postShift","trCerts","trShadow","trReadiness","trUpcoming","opsFlow","opsRecovery","opsBilling","incType","incDesc","incAction","incGM","prep"]
+    .forEach(function(k){ if($(k)&&f[k]!=null) $(k).value=f[k]; });
+  lists.nc=f.nonConversions||[]; lists.wd=f.withdrawals||[]; lists.st=f.staffing||[]; lists.so=f.shoutouts||[];
+  facility=f.facilityLog||[];
+  if (f.hadIncident){ $("hadIncident").checked=true; setIncident(true); }
 }
 
-// ---------- Report text ----------
-function buildReport(f){
-  var ld = f.lead==="Other" ? f.leadOther : f.lead;
-  var L = [];
-  L.push("SHIFT LEAD WASH — "+f.date);
-  L.push("Shift Lead: "+ld);
+// ---------- Wash text (nightly post format) ----------
+function groupBy(rows,key){
+  var out={};
+  rows.forEach(function(r){ var k=r[key]||"Uncategorized"; (out[k]=out[k]||[]).push(r); });
+  return out;
+}
+function buildWashText(f){
+  var sch=num(f.scheduled), att=num(f.attended), conv=num(f.converted);
+  var show=(sch>0&&isFinite(att))?att/sch:NaN;
+  var cr=(att>0&&isFinite(conv))?conv/att:NaN;
+  var L=[];
+  L.push("Today's Wash — "+fmtDate(f.date));
+  if (leads.length) L.push("Shift Lead: "+leadNames());
   L.push("");
-  L.push("TRIALS");
-  L.push("Scheduled: "+f.scheduled+" | Attended: "+f.attended+" | Converted: "+f.converted+" | Non-trial conversions: "+(f.nonTrial||0));
-  var att=+f.attended, conv=+f.converted, sch=+f.scheduled;
-  if (sch>0) L.push("Show rate: "+Math.round(att/sch*100)+"% | Trial conversion: "+(att>0?Math.round(conv/att*100):0)+"%");
-  L.push("");
-  L.push("PRE-SHIFT: "+f.preShift);
-  L.push("POST-SHIFT: "+f.postShift);
-  if (f.nonConversions.length){ L.push("","TRIAL NON-CONVERSIONS");
-    f.nonConversions.forEach(function(n,i){ L.push("#"+(i+1)+" Barrier: "+n.barrier+" | Context: "+(n.context||"—")+" | Follow-up: "+(n.followUp||"—")); }); }
-  if (f.withdrawals.length){ L.push("","WITHDRAWALS");
-    f.withdrawals.forEach(function(w,i){ L.push("#"+(i+1)+" Reason: "+w.reason+" | Details: "+(w.details||"—")+" | GM escalation: "+(w.gm||"—")); }); }
-  if (f.staffing.length){ L.push("","STAFFING");
-    f.staffing.forEach(function(s,i){ L.push("#"+(i+1)+" Out: "+s.who+" | Status: "+s.status+" | Covered by: "+(s.coveredBy||"—")); }); }
-  if (f.shoutouts.length){ L.push("","SHOUTOUTS");
-    f.shoutouts.forEach(function(s,i){ L.push("#"+(i+1)+" "+s.who+" — "+s.category+": "+s.why); }); }
-  var tr = [["Certs completed",f.trCerts],["Shadowing / half-teaching",f.trShadow],["Readiness observations",f.trReadiness],["Upcoming training needs",f.trUpcoming]].filter(function(x){return x[1];});
-  if (tr.length){ L.push("","TRAINING"); tr.forEach(function(x){ L.push(x[0]+": "+x[1]); }); }
-  var ops = [["Shift flow",f.opsFlow],["Customer recovery",f.opsRecovery],["Billing",f.opsBilling]].filter(function(x){return x[1];});
-  if (ops.length){ L.push("","OPS"); ops.forEach(function(x){ L.push(x[0]+": "+x[1]); }); }
-  if (f.hadIncident){ L.push("","INCIDENT");
-    L.push("Type: "+f.incType+" | Reported to GM: "+(f.incGM||"—"));
-    L.push("Description: "+f.incDesc); L.push("Action taken: "+f.incAction); }
-  var fac = [["Open items",f.facOpen],["Completed this shift",f.facDone]].filter(function(x){return x[1];});
-  if (fac.length){ L.push("","FACILITY LOG"); fac.forEach(function(x){ L.push(x[0]+": "+x[1]); }); }
-  if (f.prep) L.push("","PREP FOR NEXT DAY: "+f.prep);
+  L.push("Performance Metrics");
+  L.push("• Trials: "+(f.converted||0)+" of "+(f.attended||0)+" converted ("+pct(cr)+")");
+  L.push("• Show Rate: "+(f.attended||0)+" of "+(f.scheduled||0)+" scheduled ("+pct(show)+")");
+  if (f.nonTrial) L.push("• Non-Trial Enrollments: "+f.nonTrial);
+  if (f.reflection){ L.push(""); L.push("Reflection (below threshold)"); L.push("• "+f.reflection); }
+  if (f.nonConversions.length){
+    L.push(""); L.push("Trial Outcomes (Non-Conversions)");
+    var g=groupBy(f.nonConversions,"barrier");
+    Object.keys(g).forEach(function(k){
+      L.push(k+" ("+g[k].length+")");
+      g[k].forEach(function(row){
+        if (row.context) L.push("• "+row.context);
+        if (row.followUp) L.push("• Follow-up: "+row.followUp);
+      });
+    });
+  }
+  if (f.withdrawals.length){
+    L.push(""); L.push("Withdrawals ("+f.withdrawals.length+")");
+    var gw=groupBy(f.withdrawals,"reason");
+    Object.keys(gw).forEach(function(k){
+      L.push(k+" ("+gw[k].length+")");
+      gw[k].forEach(function(row){
+        if (row.details) L.push("• "+row.details);
+        if (row.gm==="Yes") L.push("• Escalated to GM");
+      });
+    });
+  }
+  if (f.staffing.length){
+    L.push(""); L.push("Staffing & Coverage");
+    f.staffing.forEach(function(row){ L.push("• "+(row.who||"?")+" — "+(row.status||"?")+(row.coveredBy?" • Covered by "+row.coveredBy:"")); });
+  }
+  if (f.shoutouts.length){
+    L.push(""); L.push("Shoutouts");
+    f.shoutouts.forEach(function(row){ L.push("• "+(row.who||"?")+" — "+(row.category||"")+(row.why?": "+row.why:"")); });
+  }
+  if (f.trCerts||f.trShadow||f.trReadiness||f.trUpcoming){
+    L.push(""); L.push("Training & Development");
+    if (f.trCerts) L.push("• Certs: "+f.trCerts);
+    if (f.trShadow) L.push("• Shadowing: "+f.trShadow);
+    if (f.trReadiness) L.push("• Readiness: "+f.trReadiness);
+    if (f.trUpcoming) L.push("• Upcoming: "+f.trUpcoming);
+  }
+  if (f.opsFlow||f.opsRecovery||f.opsBilling){
+    L.push(""); L.push("Operations");
+    if (f.opsFlow) L.push("• Shift Flow: "+f.opsFlow);
+    if (f.opsRecovery) L.push("• Customer Recovery: "+f.opsRecovery);
+    if (f.opsBilling) L.push("• Billing: "+f.opsBilling);
+  }
+  if (f.hadIncident){
+    L.push(""); L.push("Incident Report");
+    if (f.incType) L.push("• Type: "+f.incType);
+    if (f.incDesc) L.push("• "+f.incDesc);
+    if (f.incAction) L.push("• Action Taken: "+f.incAction);
+    L.push("• Reported to GM: "+(f.incGM||"—"));
+  }
+  var open=facility.filter(function(x){ return !x.closed && x.item && x.item.trim(); });
+  if (open.length){
+    L.push(""); L.push("Open Facility Items");
+    open.forEach(function(x){ L.push("• "+x.item); });
+  }
+  if (f.prep){ L.push(""); L.push("Prep for Next Day"); L.push("• "+f.prep); }
   return L.join("\n");
 }
 
-// ---------- Preview / copy ----------
 function togglePreview(){
-  var box = $("reportBox");
-  var show = box.style.display!=="block";
-  box.style.display = show?"block":"none";
-  $("previewBtn").textContent = show?"Hide report":"Preview";
-  if (show){ $("reportPre").textContent = buildReport(getState()); box.scrollIntoView({behavior:"smooth"}); }
+  var box=$("reportBox");
+  var show=box.style.display!=="block";
+  box.style.display=show?"block":"none";
+  $("previewBtn").textContent=show?"Hide":"Preview";
+  if (show){ $("reportPre").textContent=buildWashText(getState()); box.scrollIntoView({behavior:"smooth"}); }
 }
 function copyReport(){
-  var txt = buildReport(getState());
-  function done(){ $("copyBtn").textContent="Copied ✓"; setTimeout(function(){ $("copyBtn").textContent="Copy report text"; },2000); }
+  var txt=buildWashText(getState());
+  function done(){ $("copyBtn").textContent="Copied!"; setTimeout(function(){ $("copyBtn").textContent="Copy Wash Text"; },2000); }
   if (navigator.clipboard && navigator.clipboard.writeText){
     navigator.clipboard.writeText(txt).then(done).catch(function(){ fallbackCopy(txt); done(); });
   } else { fallbackCopy(txt); done(); }
@@ -469,70 +563,66 @@ function fallbackCopy(txt){
 
 // ---------- Submit ----------
 function submitForm(){
-  if (!refresh() || sending) return;
+  if (!refresh()||sending) return;
   if (SCRIPT_URL.indexOf("PASTE_YOUR")===0){
     showError("Setup incomplete: the Apps Script URL hasn't been added to this file yet.");
     return;
   }
-  sending = true;
-  $("submitBtn").textContent = "Submitting…"; $("submitBtn").disabled = true;
-  $("errBanner").style.display = "none";
-  var f = getState();
-  fetch(SCRIPT_URL, {
-    method: "POST",
-    headers: { "Content-Type": "text/plain;charset=utf-8" },
-    body: JSON.stringify(f),
-    redirect: "follow"
+  sending=true;
+  $("submitBtn").textContent="Saving…"; $("submitBtn").disabled=true;
+  $("errBanner").style.display="none";
+  var f=getState();
+  f.facilityLog = facility.filter(function(x){ return x.item && x.item.trim(); });
+  fetch(SCRIPT_URL,{
+    method:"POST",
+    headers:{ "Content-Type":"text/plain;charset=utf-8" },
+    body:JSON.stringify(f),
+    redirect:"follow"
   }).then(function(res){ return res.json(); })
     .then(function(out){
-      if (!out.ok) throw new Error(out.error || "Server rejected the submission");
-      try { localStorage.removeItem(DRAFT_KEY); } catch(e){}
-      $("successMsg").textContent = "Your report for "+f.date+" is in the tracker. Nice close-out.";
-      $("app").style.display = "none";
-      $("successScreen").style.display = "flex";
+      if (!out.ok) throw new Error(out.error||"Server rejected the submission");
+      try{ localStorage.removeItem(DRAFT_KEY); }catch(e){}
+      $("successMsg").textContent="Wash saved for "+fmtDate(f.date)+".";
+      $("app").style.display="none";
+      $("successScreen").style.display="flex";
       window.scrollTo(0,0);
     })
-    .catch(function(err){
-      showError(String(err && err.message ? err.message : err));
-    })
+    .catch(function(err){ showError(String(err&&err.message?err.message:err)); })
     .finally(function(){
-      sending = false;
-      $("submitBtn").textContent = "Submit shift report";
+      sending=false;
+      $("submitBtn").textContent="Save Wash";
       refresh();
     });
 }
 function showError(msg){
-  var b = $("errBanner");
-  b.style.display = "block";
-  b.innerHTML = '<b style="color:var(--flag)">Submission failed.</b> '+esc(msg)+' Your entries are still saved on this device — try again, or use Preview → Copy as a backup and send it to the GM directly.';
+  var b=$("errBanner");
+  b.style.display="block";
+  b.innerHTML='<b style="color:var(--badfg)">Save didn\'t go through.</b> '+esc(msg)+' Your entries are still on this device — try again, or Preview → Copy Wash Text and post it manually.';
   b.scrollIntoView({behavior:"smooth"});
 }
 
-// ---------- Clear / new ----------
 function clearAll(){
-  if (!confirm("Clear this shift report and start fresh?")) return;
-  try { localStorage.removeItem(DRAFT_KEY); } catch(e){}
+  if (!confirm("Clear this wash and start fresh? (Shared facility items reload from the log.)")) return;
+  try{ localStorage.removeItem(DRAFT_KEY); }catch(e){}
   location.reload();
 }
 function startNew(){
-  try { localStorage.removeItem(DRAFT_KEY); } catch(e){}
+  try{ localStorage.removeItem(DRAFT_KEY); }catch(e){}
   location.reload();
 }
 
 // ---------- Init ----------
 (function init(){
-  $("date").value = todayStr();
-  var sel = $("incType");
-  sel.innerHTML = '<option value="">Select…</option>' + INCIDENT_TYPES.map(function(o){ return '<option value="'+esc(o)+'">'+esc(o)+'</option>'; }).join("");
-  $("incYes").onclick = function(){ setIncident(true); };
-  $("incNo").onclick = function(){ setIncident(false); };
-  $("incGMYes").onclick = function(){ setIncGM("Yes"); };
-  $("incGMNo").onclick = function(){ setIncGM("No"); };
+  $("date").value=todayISO();
+  $("incType").innerHTML='<option value="">Select...</option>'+INCIDENT_TYPES.map(function(o){ return '<option value="'+esc(o)+'">'+esc(o)+'</option>'; }).join("");
+  $("hadIncident").addEventListener("change",function(e){ setIncident(e.target.checked); });
   loadDraft();
   renderLeads();
   renderList("nc"); renderList("wd"); renderList("st"); renderList("so");
-  document.addEventListener("input", refresh);
-  document.addEventListener("change", refresh);
+  renderFacility();
+  loadFacilityFromServer();
+  document.addEventListener("input",refresh);
+  document.addEventListener("change",refresh);
   refresh();
 })();
 </script>
